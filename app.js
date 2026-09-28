@@ -1,107 +1,200 @@
-const KEY="cc_v4_state";
-const uid=()=>Math.random().toString(36).slice(2,9);
-const money=n=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(Number(n)||0);
-const num=id=>Number(document.getElementById(id)?.value)||0;
-const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 
-const defaults={
-  materials:[
-    {id:uid(),name:"Beton",unit:"m³",price:110},{id:uid(),name:"Çimento",unit:"thes",price:7},
-    {id:uid(),name:"Rërë",unit:"m³",price:25},{id:uid(),name:"Zhavorr",unit:"m³",price:30},
-    {id:uid(),name:"Armaturë",unit:"kg",price:1.2},{id:uid(),name:"Bllok",unit:"copë",price:1.5},
-    {id:uid(),name:"Tjegull",unit:"copë",price:1.8},{id:uid(),name:"Bojë",unit:"L",price:6},
-    {id:uid(),name:"Pllakë",unit:"m²",price:15},{id:uid(),name:"Gërmim",unit:"m³",price:12}
-  ],
-  projects:[{id:uid(),name:"Projekti im",description:"Projekt i ri",created:Date.now(),items:[],discount:0,vat:20}],
-  activeProject:null
+const KEY = "cc_v5_state";
+
+const defaultMaterials = [
+  ["Beton C25/30","m³",95],["Çimento","kg",0.18],["Rërë","m³",22],["Zhavorr","m³",28],
+  ["Blloqe betoni","copë",0.65],["Tulla","copë",0.32],["Hekur Ø8","kg",1.15],
+  ["Hekur Ø10","kg",1.20],["Hekur Ø12","kg",1.25],["Hekur Ø16","kg",1.30],
+  ["Dru konstruktiv","m³",260],["Pllaka çatie","m²",12],["Izolim","m²",8],
+  ["Suva","m²",4.5],["Bojë","L",5.5],["Pllaka qeramike","m²",11],
+  ["Ngjitës pllakash","kg",0.55],["Gërmim dheu","m³",7]
+].map((x,i)=>({id:"m"+i,name:x[0],unit:x[1],price:x[2]}));
+
+const moduleDefs = [
+  ["Beton","beton","Beton","Llogarit vëllimin dhe koston e betonit."],
+  ["Themele","themele","Themele","Llogarit betonin, armaturën dhe koston orientuese të themeleve."],
+  ["Mure","mure","Mure","Llogarit sipërfaqen dhe numrin e blloqeve/tullave."],
+  ["Çati","cati","Çati","Llogarit sipërfaqen e çatisë me pjerrësi."],
+  ["Pjerrësi","pjerresi","Pjerrësi","Llogarit këndin dhe gjatësinë e pjerrësisë."],
+  ["Strehë","strehe","Strehë","Llogarit materialin për një strehë."],
+  ["Shkallë","shkalle","Shkallë","Llogarit betonin e shkallëve."],
+  ["Armaturë","armature","Armaturë","Llogarit peshën orientuese të armaturës."],
+  ["Suvatim","suvatim","Suvatim","Llogarit sipërfaqen dhe materialin e suvatimit."],
+  ["Bojë","boje","Bojë","Llogarit litrat e bojës."],
+  ["Pllaka","pllaka","Pllaka","Llogarit pllakat dhe ngjitësin."],
+  ["Gërmime","germime","Gërmime","Llogarit vëllimin e gërmimit."],
+];
+
+const emptyProject = (name="Projekt i ri") => ({
+  id: "p"+Date.now(), name, client:"", location:"", notes:"",
+  vat:20, laborRate:0, items:[], created:new Date().toISOString()
+});
+
+let state = JSON.parse(localStorage.getItem(KEY) || "null") || {
+  projects:[emptyProject("Projekti 1")],
+  activeId:null, materials:defaultMaterials
 };
-let state=loadState();
-if(!state.activeProject) state.activeProject=state.projects[0].id;
+if (!state.activeId) state.activeId = state.projects[0].id;
+state.materials ||= defaultMaterials;
 
-function loadState(){try{return JSON.parse(localStorage.getItem(KEY))||structuredClone(defaults)}catch{return structuredClone(defaults)}}
-function save(){localStorage.setItem(KEY,JSON.stringify(state));renderAll()}
-function project(){return state.projects.find(p=>p.id===state.activeProject)||state.projects[0]}
-function setProject(id){state.activeProject=id;save();showSection("dashboard")}
-function totals(p=project()){
- const sub=(p.items||[]).reduce((s,i)=>s+(Number(i.qty)||0)*(Number(i.price)||0),0);
- const disc=sub*(Number(p.discount)||0)/100, after=sub-disc, vat=after*(Number(p.vat)||0)/100;
- return {sub,disc,after,vat,total:after+vat};
+const $ = s => document.querySelector(s);
+const money = n => (Number(n)||0).toLocaleString("sq-AL",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
+const num = v => Math.max(0, Number(v)||0);
+const save = () => localStorage.setItem(KEY, JSON.stringify(state));
+const active = () => state.projects.find(p=>p.id===state.activeId) || state.projects[0];
+
+function projectTotals(p=active()){
+  const net = p.items.reduce((s,i)=>s + num(i.qty)*num(i.price)*(1-num(i.discount||0)/100),0);
+  const labor = p.items.reduce((s,i)=>s + num(i.labor||0)*num(i.qty),0);
+  const subtotal = net + labor;
+  const vat = subtotal * num(p.vat)/100;
+  return {net,labor,subtotal,vat,total:subtotal+vat,count:p.items.length};
 }
-function renderAll(){renderHeader();renderProjects();renderMaterials();renderEstimate();renderStats()}
-function renderHeader(){const p=project();document.getElementById("projectTitle").textContent=p.name;document.getElementById("projectMeta").textContent=p.description||"Pa përshkrim"}
-function renderStats(){const p=project(),t=totals(p);document.getElementById("dashTotal").textContent=money(t.total);document.getElementById("dashItems").textContent=p.items.length;document.getElementById("dashMaterials").textContent=state.materials.length;document.getElementById("dashProjects").textContent=state.projects.length}
+function persistAndRender(){ save(); render(); }
+
+function render(){
+  renderProjects(); renderDashboard(); renderEstimate(); renderMaterials(); renderModuleSelect();
+  const p=active();
+  const title=$("#projectTitle"); if(title) title.textContent=p.name;
+  const client=$("#projectClient"); if(client) client.value=p.client||"";
+  const location=$("#projectLocation"); if(location) location.value=p.location||"";
+  const vat=$("#projectVat"); if(vat) vat.value=p.vat ?? 20;
+  const notes=$("#projectNotes"); if(notes) notes.value=p.notes||"";
+}
+
 function renderProjects(){
- const el=document.getElementById("projectList");
- el.innerHTML=state.projects.map(p=>`<div class="project-row ${p.id===state.activeProject?"active":""}">
-   <div><strong>${esc(p.name)}</strong><small>${esc(p.description||"")}</small></div>
-   <div class="project-actions"><button class="btn small secondary" onclick="setProject('${p.id}')">Hap</button>${state.projects.length>1?`<button class="delete-btn" onclick="deleteProject('${p.id}')">×</button>`:""}</div>
- </div>`).join("");
+  const box=$("#projectList"); if(!box) return;
+  box.innerHTML=state.projects.map(p=>`<button class="project-row ${p.id===state.activeId?"active":""}" data-project="${p.id}">
+    <span>${esc(p.name)}</span><small>${p.items.length} zëra</small></button>`).join("");
+  box.querySelectorAll("[data-project]").forEach(b=>b.onclick=()=>{state.activeId=b.dataset.project;save();render();});
 }
-function renderMaterials(){
- const el=document.getElementById("materialsTable");
- el.innerHTML=state.materials.map(m=>`<tr><td><input value="${esc(m.name)}" onchange="updateMaterial('${m.id}','name',this.value)"></td>
- <td><input value="${esc(m.unit)}" onchange="updateMaterial('${m.id}','unit',this.value)"></td>
- <td><input type="number" step="0.01" value="${m.price}" onchange="updateMaterial('${m.id}','price',this.value)"></td>
- <td><button class="delete-btn" onclick="deleteMaterial('${m.id}')">Fshi</button></td></tr>`).join("");
+function renderDashboard(){
+  const t=projectTotals();
+  [["statProjects",state.projects.length],["statItems",t.count],["statSubtotal",money(t.subtotal)],["statTotal",money(t.total)]]
+    .forEach(([id,v])=>{const e=$("#"+id);if(e)e.textContent=v});
+  const p=active(), list=$("#recentItems"); if(!list)return;
+  list.innerHTML=p.items.slice(-6).reverse().map(i=>`<tr><td>${esc(i.name)}</td><td>${i.unit}</td><td>${i.qty}</td><td>${money(i.qty*i.price)}</td></tr>`).join("") ||
+    `<tr><td colspan="4" class="muted">Ende nuk ka zëra.</td></tr>`;
 }
 function renderEstimate(){
- const p=project(),el=document.getElementById("estimateTable");
- el.innerHTML=p.items.map(i=>`<tr>
- <td><input value="${esc(i.desc)}" onchange="updateItem('${i.id}','desc',this.value)"></td>
- <td><input value="${esc(i.unit)}" onchange="updateItem('${i.id}','unit',this.value)"></td>
- <td><input type="number" step="0.01" value="${i.qty}" onchange="updateItem('${i.id}','qty',this.value)"></td>
- <td><input type="number" step="0.01" value="${i.price}" onchange="updateItem('${i.id}','price',this.value)"></td>
- <td>${money((Number(i.qty)||0)*(Number(i.price)||0))}</td>
- <td><button class="delete-btn" onclick="deleteItem('${i.id}')">Fshi</button></td></tr>`).join("");
- document.getElementById("discount").value=p.discount||0;document.getElementById("vat").value=p.vat??20;
- const t=totals(p);document.getElementById("estimateSummary").innerHTML=`
- <div class="sum-row"><span>Nëntotali</span><strong>${money(t.sub)}</strong></div>
- <div class="sum-row"><span>Zbritje</span><strong>- ${money(t.disc)}</strong></div>
- <div class="sum-row"><span>Pas zbritjes</span><strong>${money(t.after)}</strong></div>
- <div class="sum-row"><span>TVSH ${p.vat}%</span><strong>${money(t.vat)}</strong></div>
- <div class="sum-row total"><span>TOTAL</span><strong>${money(t.total)}</strong></div>`;
+  const p=active(), body=$("#estimateBody"); if(!body)return;
+  body.innerHTML=p.items.map((i,idx)=>`<tr>
+    <td><input data-i="${idx}" data-k="name" value="${escAttr(i.name)}"></td>
+    <td><input data-i="${idx}" data-k="unit" value="${escAttr(i.unit)}"></td>
+    <td><input type="number" step="0.01" data-i="${idx}" data-k="qty" value="${i.qty}"></td>
+    <td><input type="number" step="0.01" data-i="${idx}" data-k="price" value="${i.price}"></td>
+    <td><input type="number" step="0.1" data-i="${idx}" data-k="discount" value="${i.discount||0}"></td>
+    <td><input type="number" step="0.01" data-i="${idx}" data-k="labor" value="${i.labor||0}"></td>
+    <td>${money(num(i.qty)*num(i.price)*(1-num(i.discount||0)/100)+num(i.qty)*num(i.labor||0))}</td>
+    <td><button class="icon-btn danger" data-del="${idx}">×</button></td>
+  </tr>`).join("") || `<tr><td colspan="8" class="muted">Shto zërin e parë të preventivit.</td></tr>`;
+  body.querySelectorAll("input[data-i]").forEach(el=>el.oninput=()=>{
+    const i=p.items[+el.dataset.i]; let v=el.value;
+    i[el.dataset.k]=["qty","price","discount","labor"].includes(el.dataset.k)?num(v):v;
+    save(); renderEstimate(); renderDashboard(); updateTotals();
+  });
+  body.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{p.items.splice(+b.dataset.del,1);persistAndRender();});
+  updateTotals();
 }
-function updateMaterial(id,key,val){const m=state.materials.find(x=>x.id===id);if(m){m[key]=key==="price"?Number(val)||0:val;save()}}
-function deleteMaterial(id){state.materials=state.materials.filter(m=>m.id!==id);save()}
-function addMaterial(){state.materials.push({id:uid(),name:"Material i ri",unit:"copë",price:0});save()}
-function updateItem(id,key,val){const i=project().items.find(x=>x.id===id);if(i){i[key]=(key==="qty"||key==="price")?Number(val)||0:val;save()}}
-function deleteItem(id){project().items=project().items.filter(i=>i.id!==id);save()}
-function addEstimate(){project().items.push({id:uid(),desc:"Punë / material",unit:"copë",qty:1,price:0});save()}
-function deleteProject(id){if(state.projects.length<=1)return alert("Duhet të mbetet të paktën një projekt.");state.projects=state.projects.filter(p=>p.id!==id);if(state.activeProject===id)state.activeProject=state.projects[0].id;save()}
-function openProjectModal(){document.getElementById("projectName").value=project().name;document.getElementById("projectDescription").value=project().description||"";document.getElementById("projectModal").classList.remove("hidden")}
-function newProject(){document.getElementById("projectName").value="Projekt i ri";document.getElementById("projectDescription").value="";document.getElementById("projectModal").classList.remove("hidden");document.getElementById("projectModal").dataset.new="1"}
-function closeModal(){document.getElementById("projectModal").classList.add("hidden");delete document.getElementById("projectModal").dataset.new}
-function saveProject(){
- const modal=document.getElementById("projectModal"),name=document.getElementById("projectName").value.trim()||"Projekt pa emër",desc=document.getElementById("projectDescription").value.trim();
- if(modal.dataset.new){const p={id:uid(),name,description:desc,created:Date.now(),items:[],discount:0,vat:20};state.projects.push(p);state.activeProject=p.id}
- else{project().name=name;project().description=desc}
- closeModal();save();
+function updateTotals(){
+  const t=projectTotals();
+  [["sumNet",money(t.net)],["sumLabor",money(t.labor)],["sumVat",money(t.vat)],["sumTotal",money(t.total)]]
+    .forEach(([id,v])=>{const e=$("#"+id);if(e)e.textContent=v});
 }
-function showSection(id){document.querySelectorAll(".section").forEach(s=>s.classList.toggle("active",s.id===id));document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.section===id));window.scrollTo({top:0,behavior:"smooth"})}
-function addResult(id,items){document.getElementById(id).innerHTML=`<div class="result-grid">${items.map(([a,b])=>`<div class="result-item"><span>${a}</span><strong>${b}</strong></div>`).join("")}</div>`}
-function calcConcrete(){let v=num("cL")*num("cW")*num("cH"),q=v*(1+num("cWaste")/100);addResult("cResult",[["Vëllimi",q.toFixed(3)+" m³"],["Kosto",money(q*num("cPrice"))],["Pa humbje",v.toFixed(3)+" m³"]])}
-function calcFoundation(){let v=num("fL")*num("fW")*num("fH"),q=v*(1+num("fWaste")/100);addResult("fResult",[["Beton",q.toFixed(3)+" m³"],["Kosto",money(q*num("fPrice"))],["Pa humbje",v.toFixed(3)+" m³"]])}
-function calcWalls(){let a=Math.max(0,num("wL")*num("wH")-num("wOpen")),b=Math.ceil(a*num("wBlocks")),m=a*num("wMortar");addResult("wResult",[["Sipërfaqe",a.toFixed(2)+" m²"],["Blloqe",b+" copë"],["Llaç",m.toFixed(3)+" m³"],["Kosto blloqesh",money(b*num("wBlockPrice"))]])}
-function calcRoof(){let a=num("rL")*num("rW"),factor=Math.sqrt(1+Math.pow(num("rSlope")/100,2)),q=a*factor*(1+num("rWaste")/100);addResult("rResult",[["Sipërfaqe",q.toFixed(2)+" m²"],["Faktori pjerrësisë",factor.toFixed(3)],["Kosto",money(q*num("rPrice"))]])}
-function calcSlope(){let p=num("sPercent"),deg=Math.atan(p/100)*180/Math.PI,rise=num("sRun")*p/100,slant=num("sRun")/Math.cos(Math.atan(p/100));addResult("sResult",[["Gradë",deg.toFixed(2)+"°"],["Ngritja",rise.toFixed(2)+" m"],["Gjatësia e pjerrët",slant.toFixed(2)+" m"]])}
-function calcEaves(){let a=num("eL")*num("eW");addResult("eResult",[["Sipërfaqe",a.toFixed(2)+" m²"],["Kosto",money(a*num("ePrice"))],["Perimetër linear",num("eL").toFixed(2)+" m"]])}
-function calcStairs(){let n=Math.max(1,Math.round(num("stN"))),r=num("stH")/n,t=num("stT"),angle=Math.atan(r/t)*180/Math.PI;addResult("stResult",[["Riser",r.toFixed(3)+" m"],["Shkelje",t.toFixed(2)+" m"],["Këndi",angle.toFixed(2)+"°"]])}
-function calcRebar(){let d=num("rbD"),l=num("rbL"),kg=d*d/162*l*(1+num("rbWaste")/100);addResult("rbResult",[["Peshë",kg.toFixed(2)+" kg"],["Kosto",money(kg*num("rbPrice"))],["Pa humbje",(d*d/162*l).toFixed(2)+" kg"]])}
-function calcPlaster(){let a=Math.max(0,num("pL")*num("pH")-num("pOpen")),v=a*(num("pT")/1000)*(1+num("pWaste")/100);addResult("pResult",[["Sipërfaqe",a.toFixed(2)+" m²"],["Volum",v.toFixed(3)+" m³"],["Trashësi",num("pT").toFixed(0)+" mm"]])}
-function calcPaint(){let liters=num("ptArea")*num("ptCoats")/Math.max(.01,num("ptCov"))*(1+num("ptWaste")/100);addResult("ptResult",[["Bojë",liters.toFixed(2)+" L"],["Kosto",money(liters*num("ptPrice"))],["Shtresa",num("ptCoats")]])}
-function calcTiles(){let piece=Math.max(.0001,num("tL")*num("tW")),q=Math.ceil(num("tArea")/piece*(1+num("tWaste")/100));addResult("tResult",[["Pllaka",q+" copë"],["Sipërfaqe neto",num("tArea").toFixed(2)+" m²"],["Kosto",money(q*num("tPrice"))]])}
-function calcExcavation(){let v=num("xL")*num("xW")*num("xH");addResult("xResult",[["Vëllim",v.toFixed(3)+" m³"],["Kosto",money(v*num("xPrice"))],["Thellësi",num("xH").toFixed(2)+" m"]])}
+function renderMaterials(){
+  const body=$("#materialsBody"); if(!body)return;
+  body.innerHTML=state.materials.map((m,i)=>`<tr>
+    <td><input data-m="${i}" data-k="name" value="${escAttr(m.name)}"></td>
+    <td><input data-m="${i}" data-k="unit" value="${escAttr(m.unit)}"></td>
+    <td><input type="number" step="0.01" data-m="${i}" data-k="price" value="${m.price}"></td>
+    <td><button class="icon-btn danger" data-md="${i}">×</button></td>
+  </tr>`).join("");
+  body.querySelectorAll("input[data-m]").forEach(el=>el.oninput=()=>{
+    const m=state.materials[+el.dataset.m]; m[el.dataset.k]=el.dataset.k==="price"?num(el.value):el.value; save();
+  });
+  body.querySelectorAll("[data-md]").forEach(b=>b.onclick=()=>{state.materials.splice(+b.dataset.md,1);persistAndRender();});
+}
+function renderModuleSelect(){
+  const s=$("#materialSelect"); if(!s)return;
+  s.innerHTML=state.materials.map(m=>`<option value="${m.id}">${esc(m.name)} — ${money(m.price)}/${m.unit}</option>`).join("");
+}
+function addItem(item={name:"Zë i ri",unit:"m²",qty:1,price:0,discount:0,labor:0}){
+  active().items.push({...item,id:"i"+Date.now()+Math.random()}); persistAndRender();
+}
+function addMaterialToEstimate(){
+  const m=state.materials.find(x=>x.id===$("#materialSelect").value); if(m)addItem({name:m.name,unit:m.unit,qty:1,price:m.price,discount:0,labor:0});
+}
 
-function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="construction-calculator-v4.json";a.click();URL.revokeObjectURL(a.href)}
-function importJSON(file){const r=new FileReader();r.onload=e=>{try{const x=JSON.parse(e.target.result);if(!x.projects||!x.materials)throw Error();state=x;save();alert("Të dhënat u importuan.")}catch{alert("Skedari JSON nuk është i vlefshëm.")}};r.readAsText(file)}
-function printEstimate(){showSection("estimate");setTimeout(()=>window.print(),100)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+const escAttr=esc;
 
-document.querySelectorAll(".nav-item").forEach(b=>b.addEventListener("click",()=>showSection(b.dataset.section)));
-document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>showSection(b.dataset.go)));
-document.getElementById("newProjectBtn").onclick=newProject;document.getElementById("dashboardNewProject").onclick=newProject;
-document.getElementById("editProjectBtn").onclick=openProjectModal;document.getElementById("closeModal").onclick=closeModal;document.getElementById("cancelModal").onclick=closeModal;document.getElementById("saveProjectBtn").onclick=saveProject;
-document.getElementById("addMaterialBtn").onclick=addMaterial;document.getElementById("addEstimateBtn").onclick=addEstimate;document.getElementById("printBtn").onclick=printEstimate;document.getElementById("printEstimateBtn").onclick=printEstimate;
-document.getElementById("exportJsonBtn").onclick=exportJSON;document.getElementById("importJsonBtn").onclick=()=>document.getElementById("importFile").click();document.getElementById("importFile").onchange=e=>e.target.files[0]&&importJSON(e.target.files[0]);
-document.getElementById("discount").onchange=e=>{project().discount=Number(e.target.value)||0;save()};document.getElementById("vat").onchange=e=>{project().vat=Number(e.target.value)||0;save()};
-document.getElementById("clearAllBtn").onclick=()=>{if(confirm("Të fshihen të gjitha të dhënat lokale?")){localStorage.removeItem(KEY);state=loadState();state.activeProject=state.projects[0].id;save()}};
-renderAll();
+function moduleCalc(type){
+  const vals=[...document.querySelectorAll("#moduleForm input")].map(x=>num(x.value));
+  let result=[], cost=0;
+  if(type==="beton"){let [l,w,h]=vals;let v=l*w*h;result=[`Vëllimi: ${v.toFixed(2)} m³`];cost=v*(state.materials.find(m=>m.name.includes("Beton"))?.price||0);}
+  if(type==="themele"){let [l,w,h]=vals;let v=l*w*h;let steel=v*80;result=[`Beton: ${v.toFixed(2)} m³`,`Armaturë orientuese: ${steel.toFixed(0)} kg`];cost=v*95+steel*1.25;}
+  if(type==="mure"){let [l,h,open]=vals;let a=Math.max(0,l*h-open);let blocks=a*12.5;result=[`Sipërfaqe: ${a.toFixed(2)} m²`,`Blloqe/tulla orientuese: ${Math.ceil(blocks)} copë`];cost=blocks*0.65;}
+  if(type==="cati"){let [l,w,slope]=vals;let r=1/Math.cos(Math.atan(slope/100));let a=l*w*r;result=[`Sipërfaqe çatie: ${a.toFixed(2)} m²`];cost=a*12;}
+  if(type==="pjerresi"){let [rise,run]=vals;let hyp=Math.hypot(rise,run), angle=Math.atan2(rise,run)*180/Math.PI;result=[`Gjatësia: ${hyp.toFixed(2)} m`,`Këndi: ${angle.toFixed(2)}°`,`Pjerrësia: ${(rise/run*100||0).toFixed(2)}%`];}
+  if(type==="strehe"){let [l,w]=vals;let a=l*w;result=[`Sipërfaqe: ${a.toFixed(2)} m²`,`Material çatie orientues: ${a.toFixed(2)} m²`];cost=a*12;}
+  if(type==="shkalle"){let [n,rise,run,w]=vals;let v=n*rise*run*w/2;result=[`Numër hapash: ${n}`,`Beton orientues: ${v.toFixed(2)} m³`];cost=v*95;}
+  if(type==="armature"){let [d,len,n]=vals;let kgm=(d*d/162);let kg=kgm*len*n;result=[`Peshë orientuese: ${kg.toFixed(2)} kg`];cost=kg*1.25;}
+  if(type==="suvatim"){let [l,h,open,thick]=vals;let a=Math.max(0,l*h-open), v=a*(thick/1000);result=[`Sipërfaqe: ${a.toFixed(2)} m²`,`Vëllim suvatimi: ${v.toFixed(3)} m³`];cost=a*4.5;}
+  if(type==="boje"){let [a,coats,coverage]=vals;let liters=a*coats/(coverage||10);result=[`Bojë: ${liters.toFixed(2)} L`];cost=liters*5.5;}
+  if(type==="pllaka"){let [l,w,waste]=vals;let a=l*w*(1+waste/100);result=[`Sipërfaqe me humbje: ${a.toFixed(2)} m²`,`Pllaka: ${a.toFixed(2)} m²`];cost=a*11;}
+  if(type==="germime"){let [l,w,h]=vals;let v=l*w*h;result=[`Vëllim gërmimi: ${v.toFixed(2)} m³`];cost=v*7;}
+  const out=$("#moduleResult"); out.innerHTML=`<div class="result-box">${result.map(x=>`<div>${x}</div>`).join("")}<strong>Kosto orientuese: ${money(cost)}</strong></div>`;
+  if(cost){$("#addCalc").onclick=()=>addItem({name:moduleDefs.find(x=>x[1]===type)?.[2]||type,unit:"shërbim",qty:1,price:cost,labor:0});$("#addCalc").hidden=false;}
+}
+
+function setupModules(){
+  const nav=$("#moduleNav"); if(!nav)return;
+  nav.innerHTML=moduleDefs.map(x=>`<button data-mod="${x[1]}">${x[0]}</button>`).join("");
+  nav.querySelectorAll("[data-mod]").forEach(b=>b.onclick=()=>openModule(b.dataset.mod));
+}
+function openModule(type){
+  const d=moduleDefs.find(x=>x[1]===type); if(!d)return;
+  $("#moduleTitle").textContent=d[2]; $("#moduleDesc").textContent=d[3];
+  const specs={
+    beton:[["Gjatësia (m)",""],["Gjerësia (m)",""],["Lartësia (m)",""]],
+    themele:[["Gjatësia (m)",""],["Gjerësia (m)",""],["Lartësia (m)",""]],
+    mure:[["Gjatësia (m)",""],["Lartësia (m)",""],["Hapje (m²)",""]],
+    cati:[["Gjatësia (m)",""],["Gjerësia (m)",""],["Pjerrësia (%)",""]],
+    pjerresi:[["Ngritja (m)",""],["Baza (m)",""]],
+    strehe:[["Gjatësia (m)",""],["Gjerësia (m)",""]],
+    shkalle:[["Numër hapash",""],["Ngritja (m)",""],["Shkelja (m)",""],["Gjerësia (m)",""]],
+    armature:[["Diametri Ø (mm)",""],["Gjatësia/shufër (m)",""],["Numër shufrash",""]],
+    suvatim:[["Gjatësia (m)",""],["Lartësia (m)",""],["Hapje (m²)",""],["Trashësia (mm)",""]],
+    boje:[["Sipërfaqja (m²)",""],["Numër duarsh",""],["Mbulimi (m²/L)",""]],
+    pllaka:[["Gjatësia (m)",""],["Gjerësia (m)",""],["Humbje (%)",""]],
+    germime:[["Gjatësia (m)",""],["Gjerësia (m)",""],["Thellësia (m)",""]]
+  }[type];
+  $("#moduleForm").innerHTML=specs.map(s=>`<label>${s[0]}<input type="number" step="0.01" value="1"></label>`).join("");
+  $("#moduleResult").innerHTML=""; $("#addCalc").hidden=true;
+  $("#calcModule").onclick=()=>moduleCalc(type);
+  document.querySelectorAll(".page").forEach(x=>x.hidden=true); $("#modulePage").hidden=false;
+}
+
+function bind(){
+  $("#newProject").onclick=()=>{const name=prompt("Emri i projektit:","Projekt i ri");if(name){const p=emptyProject(name);state.projects.push(p);state.activeId=p.id;persistAndRender();}};
+  $("#deleteProject").onclick=()=>{if(state.projects.length<2)return alert("Duhet të mbetet të paktën një projekt.");if(confirm("Fshi projektin aktiv?")){state.projects=state.projects.filter(p=>p.id!==state.activeId);state.activeId=state.projects[0].id;persistAndRender();}};
+  $("#addItem").onclick=()=>addItem();
+  $("#addMaterial").onclick=addMaterialToEstimate;
+  $("#saveProject").onclick=()=>{const p=active();p.name=$("#projectTitle").textContent;p.client=$("#projectClient").value;p.location=$("#projectLocation").value;p.vat=num($("#projectVat").value);p.notes=$("#projectNotes").value;persistAndRender();alert("Projekti u ruajt.");};
+  $("#printEstimate").onclick=()=>window.print();
+  $("#exportJson").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:"application/json"}));a.download="construction-calculator-v5.json";a.click();};
+  $("#importJson").onclick=()=>$("#jsonFile").click();
+  $("#jsonFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);save();render();alert("Projekti u importua.");}catch{alert("JSON i pavlefshëm.");}};r.readAsText(f)};
+  $("#navDashboard").onclick=()=>showPage("dashboardPage");
+  $("#navEstimate").onclick=()=>showPage("estimatePage");
+  $("#navMaterials").onclick=()=>showPage("materialsPage");
+  $("#navProject").onclick=()=>showPage("projectPage");
+  $("#navModules").onclick=()=>showPage("modulesPage");
+  setupModules();
+  $("#moduleNav").querySelectorAll("button").forEach(b=>b.onclick=()=>openModule(b.dataset.mod));
+  $("#backModules").onclick=()=>showPage("modulesPage");
+  $("#projectTitle").contentEditable="true";
+}
+function showPage(id){document.querySelectorAll(".page").forEach(x=>x.hidden=true);$("#"+id).hidden=false;window.scrollTo(0,0);}
+function start(){bind();render();showPage("dashboardPage");}
+document.addEventListener("DOMContentLoaded",start);

@@ -1,144 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sq">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Construction Calculator V4 - kalkulator profesional për ndërtim dhe preventiv.">
-  <title>Construction Calculator V4</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Construction Calculator V5</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">CC</div>
-        <div><strong>Construction</strong><span>Calculator V4</span></div>
-      </div>
-      <button class="new-project-btn" id="newProjectBtn">＋ Projekt i ri</button>
-      <nav id="mainNav">
-        <button class="nav-item active" data-section="dashboard">⌂ <span>Përmbledhje</span></button>
-        <button class="nav-item" data-section="concrete">▦ <span>Beton</span></button>
-        <button class="nav-item" data-section="foundations">▰ <span>Themele</span></button>
-        <button class="nav-item" data-section="walls">▤ <span>Mure</span></button>
-        <button class="nav-item" data-section="roof">⌂ <span>Çati</span></button>
-        <button class="nav-item" data-section="slope">∠ <span>Pjerrësi</span></button>
-        <button class="nav-item" data-section="eaves">▱ <span>Strehë</span></button>
-        <button class="nav-item" data-section="stairs">⇧ <span>Shkallë</span></button>
-        <button class="nav-item" data-section="rebar"># <span>Armaturë</span></button>
-        <button class="nav-item" data-section="plaster">▥ <span>Suvatim</span></button>
-        <button class="nav-item" data-section="paint">◐ <span>Bojë</span></button>
-        <button class="nav-item" data-section="tiles">▦ <span>Pllaka</span></button>
-        <button class="nav-item" data-section="excavation">⌄ <span>Gërmime</span></button>
-        <button class="nav-item" data-section="materials">● <span>Materiale</span></button>
-        <button class="nav-item" data-section="estimate">€ <span>Preventiv</span></button>
-      </nav>
-      <div class="sidebar-footer">
-        <span>V4 • Local-first</span>
-        <button id="clearAllBtn" class="ghost danger">Pastro të dhënat</button>
-      </div>
-    </aside>
+<aside class="sidebar">
+  <div class="brand"><span>CC</span><div><b>Construction</b><small>Calculator V5</small></div></div>
+  <nav>
+    <button id="navDashboard">⌂ <span>Dashboard</span></button>
+    <button id="navProject">▣ <span>Projekti</span></button>
+    <button id="navEstimate">▤ <span>Preventiv</span></button>
+    <button id="navMaterials">◈ <span>Materiale</span></button>
+    <button id="navModules">⌘ <span>Kalkulatorë</span></button>
+  </nav>
+  <div class="side-bottom"><small>V5 • Static • GitHub Pages</small></div>
+</aside>
+<main class="main">
+<header class="topbar"><div><span class="eyebrow">PROJEKT AKTIV</span><h1 id="projectTitle">Construction Calculator</h1></div><div class="top-actions"><button id="exportJson" class="ghost">Eksporto</button><button id="importJson" class="ghost">Importo</button><input id="jsonFile" type="file" accept=".json" hidden><button id="printEstimate" class="primary">Print / PDF</button></div></header>
 
-    <main class="main">
-      <header class="topbar">
-        <div>
-          <div class="eyebrow">PROJEKTI AKTIV</div>
-          <h1 id="projectTitle">Projekti im</h1>
-          <p id="projectMeta">Pa përshkrim</p>
-        </div>
-        <div class="top-actions">
-          <button class="btn secondary" id="editProjectBtn">⚙ Projekti</button>
-          <button class="btn secondary" id="exportJsonBtn">⇩ JSON</button>
-          <button class="btn primary" id="printBtn">🖨 Printo</button>
-        </div>
-      </header>
+<section id="dashboardPage" class="page">
+  <div class="hero"><div><span class="eyebrow">V5</span><h2>Kalkulatori i ndërtimit</h2><p>Menaxho projekte, materiale dhe preventiv nga telefoni ose kompjuteri.</p></div><button id="newProject" class="primary">+ Projekt i ri</button></div>
+  <div class="stats"><div><span>Projekte</span><strong id="statProjects">0</strong></div><div><span>Zëra preventivi</span><strong id="statItems">0</strong></div><div><span>Nëntotal + punë</span><strong id="statSubtotal">0 €</strong></div><div><span>Total me TVSH</span><strong id="statTotal">0 €</strong></div></div>
+  <div class="grid2"><div class="card"><div class="card-head"><h3>Projektet</h3><button id="deleteProject" class="danger-btn">Fshi aktivin</button></div><div id="projectList"></div></div>
+  <div class="card"><div class="card-head"><h3>Zërat e fundit</h3><button id="navEstimate" class="link-btn">Hap preventivin →</button></div><div class="table-wrap"><table><thead><tr><th>Emri</th><th>Nj.</th><th>Sasi</th><th>Vlera</th></tr></thead><tbody id="recentItems"></tbody></table></div></div></div>
+</section>
 
-      <section id="dashboard" class="section active">
-        <div class="hero">
-          <div>
-            <span class="pill">V4</span>
-            <h2>Qendra e llogaritjeve të ndërtimit</h2>
-            <p>Menaxho projektet, materialet, sasitë dhe preventivin në një vend.</p>
-          </div>
-          <div class="hero-actions">
-            <button class="btn primary" data-go="estimate">Hap preventivin</button>
-            <button class="btn secondary" id="importJsonBtn">⇧ Importo JSON</button>
-            <input id="importFile" type="file" accept=".json" hidden>
-          </div>
-        </div>
+<section id="projectPage" class="page" hidden>
+ <div class="section-head"><div><span class="eyebrow">PROJEKT</span><h2>Të dhënat e projektit</h2></div><button id="saveProject" class="primary">Ruaj</button></div>
+ <div class="form-grid"><label>Klienti<input id="projectClient" placeholder="Emri i klientit"></label><label>Lokacioni<input id="projectLocation" placeholder="Adresa / qyteti"></label><label>TVSH %<input id="projectVat" type="number" value="20"></label><label class="wide">Shënime<textarea id="projectNotes" rows="5" placeholder="Shënime të projektit"></textarea></label></div>
+</section>
 
-        <div class="stats-grid">
-          <div class="stat-card"><span>Vlera e preventivit</span><strong id="dashTotal">0,00 €</strong><small>me TVSH dhe zbritje</small></div>
-          <div class="stat-card"><span>Artikuj</span><strong id="dashItems">0</strong><small>në preventivin aktiv</small></div>
-          <div class="stat-card"><span>Materiale</span><strong id="dashMaterials">0</strong><small>në katalog</small></div>
-          <div class="stat-card"><span>Projekte</span><strong id="dashProjects">0</strong><small>të ruajtura në pajisje</small></div>
-        </div>
+<section id="estimatePage" class="page" hidden>
+ <div class="section-head"><div><span class="eyebrow">PREVENTIV</span><h2>Preventivi i projektit</h2></div><div class="row"><select id="materialSelect"></select><button id="addMaterial" class="secondary">+ Material</button><button id="addItem" class="primary">+ Zë</button></div></div>
+ <div class="card"><div class="table-wrap"><table class="estimate"><thead><tr><th>Përshkrimi</th><th>Nj.</th><th>Sasi</th><th>Çmim</th><th>Zbritje %</th><th>Punë / nj.</th><th>Total</th><th></th></tr></thead><tbody id="estimateBody"></tbody></table></div>
+ <div class="totals"><div><span>Nëntotal</span><strong id="sumNet">0 €</strong></div><div><span>Punë</span><strong id="sumLabor">0 €</strong></div><div><span>TVSH</span><strong id="sumVat">0 €</strong></div><div class="grand"><span>TOTAL</span><strong id="sumTotal">0 €</strong></div></div></div>
+</section>
 
-        <div class="grid-2">
-          <div class="panel">
-            <div class="panel-head"><div><h3>Projektet</h3><p>Zgjidh projektin që dëshiron të punosh.</p></div><button class="btn small" id="dashboardNewProject">＋ I ri</button></div>
-            <div id="projectList" class="project-list"></div>
-          </div>
-          <div class="panel">
-            <div class="panel-head"><div><h3>Hyrje të shpejta</h3><p>Modulet më të përdorura.</p></div></div>
-            <div class="quick-grid">
-              <button data-go="concrete">▦ Beton</button><button data-go="foundations">▰ Themele</button>
-              <button data-go="walls">▤ Mure</button><button data-go="roof">⌂ Çati</button>
-              <button data-go="rebar"># Armaturë</button><button data-go="estimate">€ Preventiv</button>
-            </div>
-          </div>
-        </div>
-        <div class="notice">⚠️ Llogaritjet janë orientuese. Dimensionimi strukturor dhe përzgjedhja e armaturës duhet verifikuar nga profesionist i autorizuar sipas projektit dhe normave lokale.</div>
-      </section>
+<section id="materialsPage" class="page" hidden>
+ <div class="section-head"><div><span class="eyebrow">KATALOG</span><h2>Materialet dhe çmimet</h2></div><button class="primary" onclick="state.materials.push({id:'m'+Date.now(),name:'Material i ri',unit:'copë',price:0});persistAndRender()">+ Material</button></div>
+ <div class="card"><div class="table-wrap"><table><thead><tr><th>Materiali</th><th>Njësia</th><th>Çmimi</th><th></th></tr></thead><tbody id="materialsBody"></tbody></table></div></div>
+</section>
 
-      <section id="concrete" class="section"><div class="section-head"><h2>Beton</h2><p>Vëllim, humbje dhe kosto.</p></div><div class="calculator-card"><div class="form-grid"><label>Gjatësia (m)<input id="cL" type="number" step="0.01" value="5"></label><label>Gjerësia (m)<input id="cW" type="number" step="0.01" value="3"></label><label>Lartësia (m)<input id="cH" type="number" step="0.01" value="0.20"></label><label>Humbje (%)<input id="cWaste" type="number" step="0.1" value="5"></label><label>Çmimi €/m³<input id="cPrice" type="number" step="0.01" value="110"></label></div><button class="btn primary calc-btn" onclick="calcConcrete()">Llogarit</button><div id="cResult" class="result-box"></div></div></section>
+<section id="modulesPage" class="page" hidden>
+ <div class="section-head"><div><span class="eyebrow">KALKULATORË</span><h2>Modulet</h2><p>Zgjidh modulin që dëshiron të llogarisësh.</p></div></div>
+ <div id="moduleNav" class="module-grid"></div>
+</section>
 
-      <section id="foundations" class="section"><div class="section-head"><h2>Themele</h2><p>Beton për themele të vazhduara ose element linear.</p></div><div class="calculator-card"><div class="form-grid"><label>Gjatësia totale (m)<input id="fL" type="number" step="0.01" value="30"></label><label>Gjerësia (m)<input id="fW" type="number" step="0.01" value="0.50"></label><label>Lartësia (m)<input id="fH" type="number" step="0.01" value="0.60"></label><label>Humbje (%)<input id="fWaste" type="number" step="0.1" value="5"></label><label>Çmimi €/m³<input id="fPrice" type="number" step="0.01" value="110"></label></div><button class="btn primary calc-btn" onclick="calcFoundation()">Llogarit</button><div id="fResult" class="result-box"></div></div></section>
-
-      <section id="walls" class="section"><div class="section-head"><h2>Mure</h2><p>Sipërfaqe, numër blloqesh dhe llaç.</p></div><div class="calculator-card"><div class="form-grid"><label>Gjatësia (m)<input id="wL" type="number" step="0.01" value="20"></label><label>Lartësia (m)<input id="wH" type="number" step="0.01" value="2.80"></label><label>Hapje gjithsej (m²)<input id="wOpen" type="number" step="0.01" value="3"></label><label>Blloqe / m²<input id="wBlocks" type="number" step="0.1" value="12.5"></label><label>Llaç (m³/m²)<input id="wMortar" type="number" step="0.001" value="0.018"></label><label>Çmimi bllok (€)<input id="wBlockPrice" type="number" step="0.01" value="1.50"></label></div><button class="btn primary calc-btn" onclick="calcWalls()">Llogarit</button><div id="wResult" class="result-box"></div></div></section>
-
-      <section id="roof" class="section"><div class="section-head"><h2>Çati</h2><p>Sipërfaqja e çatisë duke marrë parasysh pjerrësinë.</p></div><div class="calculator-card"><div class="form-grid"><label>Gjatësia (m)<input id="rL" type="number" step="0.01" value="10"></label><label>Gjerësia horizontale (m)<input id="rW" type="number" step="0.01" value="8"></label><label>Pjerrësia (%)<input id="rSlope" type="number" step="0.1" value="30"></label><label>Humbje (%)<input id="rWaste" type="number" step="0.1" value="10"></label><label>Çmimi €/m²<input id="rPrice" type="number" step="0.01" value="35"></label></div><button class="btn primary calc-btn" onclick="calcRoof()">Llogarit</button><div id="rResult" class="result-box"></div></div></section>
-
-      <section id="slope" class="section"><div class="section-head"><h2>Pjerrësi</h2><p>Konvertim përqindje, gradë dhe ngritje.</p></div><div class="calculator-card"><div class="form-grid"><label>Pjerrësia (%)<input id="sPercent" type="number" step="0.1" value="30"></label><label>Gjatësia horizontale (m)<input id="sRun" type="number" step="0.01" value="5"></label></div><button class="btn primary calc-btn" onclick="calcSlope()">Llogarit</button><div id="sResult" class="result-box"></div></div></section>
-
-      <section id="eaves" class="section"><div class="section-head"><h2>Strehë</h2><p>Sipërfaqja dhe kostoja e strehës.</p></div><div class="calculator-card"><div class="form-grid"><label>Gjatësia (m)<input id="eL" type="number" step="0.01" value="10"></label><label>Dalja e strehës (m)<input id="eW" type="number" step="0.01" value="0.60"></label><label>Çmimi €/m²<input id="ePrice" type="number" step="0.01" value="25"></label></div><button class="btn primary calc-btn" onclick="calcEaves()">Llogarit</button><div id="eResult" class="result-box"></div></div></section>
-
-      <section id="stairs" class="section"><div class="section-head"><h2>Shkallë</h2><p>Riser, shkelje dhe këndi.</p></div><div class="calculator-card"><div class="form-grid"><label>Lartësia totale (m)<input id="stH" type="number" step="0.01" value="2.80"></label><label>Numri i riserave<input id="stN" type="number" step="1" value="16"></label><label>Shkelja (m)<input id="stT" type="number" step="0.01" value="0.28"></label></div><button class="btn primary calc-btn" onclick="calcStairs()">Llogarit</button><div id="stResult" class="result-box"></div></div></section>
-
-      <section id="rebar" class="section"><div class="section-head"><h2>Armaturë</h2><p>Peshë teorike nga diametri dhe gjatësia.</p></div><div class="calculator-card"><div class="form-grid"><label>Diametri Ø (mm)<input id="rbD" type="number" step="1" value="12"></label><label>Gjatësia totale (m)<input id="rbL" type="number" step="0.1" value="250"></label><label>Humbje (%)<input id="rbWaste" type="number" step="0.1" value="5"></label><label>Çmimi €/kg<input id="rbPrice" type="number" step="0.01" value="1.20"></label></div><button class="btn primary calc-btn" onclick="calcRebar()">Llogarit</button><div id="rbResult" class="result-box"></div></div></section>
-
-      <section id="plaster" class="section"><div class="section-head"><h2>Suvatim</h2><p>Sipërfaqe dhe vëllim suvaje.</p></div><div class="calculator-card"><div class="form-grid"><label>Gjatësia (m)<input id="pL" type="number" step="0.01" value="20"></label><label>Lartësia (m)<input id="pH" type="number" step="0.01" value="2.80"></label><label>Hapje (m²)<input id="pOpen" type="number" step="0.01" value="3"></label><label>Trashësia (mm)<input id="pT" type="number" step="1" value="15"></label><label>Humbje (%)<input id="pWaste" type="number" step="0.1" value="10"></label></div><button class="btn primary calc-btn" onclick="calcPlaster()">Llogarit</button><div id="pResult" class="result-box"></div></div></section>
-
-      <section id="paint" class="section"><div class="section-head"><h2>Bojë</h2><p>Sasia e bojës sipas mbulimit dhe shtresave.</p></div><div class="calculator-card"><div class="form-grid"><label>Sipërfaqe (m²)<input id="ptArea" type="number" step="0.1" value="100"></label><label>Mbulim (m²/L)<input id="ptCov" type="number" step="0.1" value="10"></label><label>Shtresa<input id="ptCoats" type="number" step="1" value="2"></label><label>Humbje (%)<input id="ptWaste" type="number" step="0.1" value="10"></label><label>Çmimi €/L<input id="ptPrice" type="number" step="0.01" value="6"></label></div><button class="btn primary calc-btn" onclick="calcPaint()">Llogarit</button><div id="ptResult" class="result-box"></div></div></section>
-
-      <section id="tiles" class="section"><div class="section-head"><h2>Pllaka</h2><p>Numër pllakash me rezervë për prerje.</p></div><div class="calculator-card"><div class="form-grid"><label>Sipërfaqe (m²)<input id="tArea" type="number" step="0.1" value="50"></label><label>Gjatësia e pllakës (m)<input id="tL" type="number" step="0.01" value="0.60"></label><label>Gjerësia e pllakës (m)<input id="tW" type="number" step="0.01" value="0.60"></label><label>Humbje (%)<input id="tWaste" type="number" step="0.1" value="10"></label><label>Çmimi €/copë<input id="tPrice" type="number" step="0.01" value="15"></label></div><button class="btn primary calc-btn" onclick="calcTiles()">Llogarit</button><div id="tResult" class="result-box"></div></div></section>
-
-      <section id="excavation" class="section"><div class="section-head"><h2>Gërmime</h2><p>Vëllimi i dheut dhe kosto orientuese.</p></div><div class="calculator-card"><div class="form-grid"><label>Gjatësia (m)<input id="xL" type="number" step="0.01" value="30"></label><label>Gjerësia (m)<input id="xW" type="number" step="0.01" value="0.80"></label><label>Thellësia (m)<input id="xH" type="number" step="0.01" value="1.00"></label><label>Çmimi €/m³<input id="xPrice" type="number" step="0.01" value="12"></label></div><button class="btn primary calc-btn" onclick="calcExcavation()">Llogarit</button><div id="xResult" class="result-box"></div></div></section>
-
-      <section id="materials" class="section"><div class="section-head"><h2>Materiale</h2><p>Katalogu i çmimeve të projektit.</p></div><div class="panel"><div class="panel-head"><div><h3>Çmimet</h3><p>Ndryshimet ruhen automatikisht në pajisje.</p></div><button class="btn primary small" id="addMaterialBtn">＋ Material</button></div><div class="table-wrap"><table><thead><tr><th>Materiali</th><th>Njësia</th><th>Çmimi</th><th></th></tr></thead><tbody id="materialsTable"></tbody></table></div></div></section>
-
-      <section id="estimate" class="section"><div class="section-head"><h2>Preventiv</h2><p>Artikuj, zbritje, TVSH dhe total i projektit.</p></div>
-        <div class="panel">
-          <div class="panel-head"><div><h3>Artikujt e preventivit</h3><p>Plotëso sasinë dhe çmimin për çdo punë/material.</p></div><button class="btn primary small" id="addEstimateBtn">＋ Artikull</button></div>
-          <div class="table-wrap"><table class="estimate-table"><thead><tr><th>Përshkrimi</th><th>Njësia</th><th>Sasia</th><th>Çmimi</th><th>Totali</th><th></th></tr></thead><tbody id="estimateTable"></tbody></table></div>
-          <div class="estimate-controls">
-            <label>Zbritje (%)<input id="discount" type="number" min="0" step="0.1" value="0"></label>
-            <label>TVSH (%)<input id="vat" type="number" min="0" step="0.1" value="20"></label>
-          </div>
-          <div id="estimateSummary" class="summary-box"></div>
-          <button class="btn primary" id="printEstimateBtn">🖨 Printo preventivin</button>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <div id="projectModal" class="modal hidden">
-    <div class="modal-card">
-      <div class="modal-head"><h3>Projekt</h3><button class="icon-btn" id="closeModal">×</button></div>
-      <label>Emri i projektit<input id="projectName" placeholder="p.sh. Shtëpia 180 m²"></label>
-      <label>Përshkrimi<input id="projectDescription" placeholder="Adresë, klient, shënime..."></label>
-      <div class="modal-actions"><button class="btn secondary" id="cancelModal">Anulo</button><button class="btn primary" id="saveProjectBtn">Ruaj</button></div>
-    </div>
-  </div>
-  <script src="app.js"></script>
-</body>
-</html>
+<section id="modulePage" class="page" hidden>
+ <div class="section-head"><div><button id="backModules" class="link-btn">← Modulet</button><h2 id="moduleTitle">Moduli</h2><p id="moduleDesc"></p></div></div>
+ <div class="grid2"><div class="card"><div id="moduleForm" class="form-grid"></div><button id="calcModule" class="primary full">Llogarit</button></div><div class="card"><h3>Rezultati</h3><div id="moduleResult" class="muted">Plotëso të dhënat dhe shtyp Llogarit.</div><button id="addCalc" class="secondary full" hidden>Shto në preventiv</button></div></div>
+</section>
+</main>
+<script src="app.js"></script>
+</body></html>

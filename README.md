@@ -1,38 +1,21 @@
-# Construction Calculator V4
+# Construction Calculator V5
 
-Kalkulator web për ndërtim, materiale dhe preventiv. Projekti është 100% static: HTML + CSS + JavaScript, pa backend.
+V5 is a static HTML/CSS/JavaScript construction calculator designed for GitHub Pages.
 
-## Çfarë ka V4
-
-- Dashboard me projektin aktiv
-- Projekte të shumta
-- Ruajtje automatike në `localStorage`
-- Import / eksport JSON
-- Preventiv me artikuj, njësi, sasi dhe çmime
-- Zbritje dhe TVSH
-- Printim i preventivit
-- Katalog materialesh me çmime të ndryshueshme
-- Kalkulatorë për beton, themele, mure, çati, pjerrësi, strehë, shkallë, armaturë, suvatim, bojë, pllaka dhe gërmime
-- Dizajn responsive për desktop dhe telefon
-- GitHub Pages ready
-
-## Hapja lokale
-
-Mjafton të hapësh `index.html` në browser.
+## V5 features
+- Dashboard and multiple projects
+- Project/client/location notes
+- Preventiv with quantity, unit, price, discount, labor, VAT and totals
+- Editable material catalog
+- Construction calculators: concrete, foundations, walls, roof, slope, shelter, stairs, reinforcement, plaster, paint, tiles and excavation
+- Add calculator results to the estimate
+- JSON import/export
+- Print / Save as PDF
+- Responsive mobile layout
+- LocalStorage persistence
+- No backend required
 
 ## GitHub Pages
+Upload `index.html`, `style.css`, `app.js`, and `README.md` to the repository root and publish `main` / `(root)` using GitHub Pages.
 
-1. Krijo një repository të ri në GitHub, p.sh. `construction-calculator`.
-2. Ngarko `index.html`, `style.css`, `app.js` dhe `README.md`.
-3. Shko te **Settings → Pages**.
-4. Te **Build and deployment**, zgjidh **Deploy from a branch**.
-5. Zgjidh branch `main` dhe folder `/ (root)`.
-6. Ruaj. GitHub Pages do të publikojë faqen.
-
-## Shënim teknik
-
-Të dhënat ruhen vetëm në browser-in e pajisjes ku përdoret aplikacioni. Për sinkronizim online, login, databazë, përdorues të shumtë ose ruajtje cloud nevojitet një backend.
-
-## Siguria e llogaritjeve
-
-Ky është mjet llogaritës orientues dhe nuk zëvendëson projektimin statik, detajet e armaturës apo kontrollin nga inxhinier/profesionist i autorizuar.
+Calculations are orientative and are not a substitute for project documents, structural design, local codes, or verification by qualified professionals.
