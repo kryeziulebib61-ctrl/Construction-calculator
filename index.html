@@ -1,57 +1,71 @@
 <!doctype html>
 <html lang="sq">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Construction Calculator V5</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#111827">
+<title>Kalkulator Ndërtimi</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f4f6;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#111827;color:#fff;padding:calc(18px + env(safe-area-inset-top)) 16px 16px;position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:23px}.sub{font-size:13px;opacity:.7;margin-top:4px}
+main{max-width:680px;margin:auto;padding:14px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px #0000000d}
+h2{font-size:17px;margin:0 0 8px}.formula{font-size:12px;color:#6b7280;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:12px;color:#6b7280;margin-bottom:5px}
+input{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:10px;font-size:18px;background:#fff}
+button{width:100%;margin-top:12px;padding:13px;border:0;border-radius:10px;background:#111827;color:#fff;font-size:16px;font-weight:700}
+.result{margin-top:10px;padding:12px;border-radius:10px;background:#eef0f3;font-size:18px;font-weight:700;min-height:23px}
+@media(max-width:380px){.grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-<aside class="sidebar">
-  <div class="brand"><span>CC</span><div><b>Construction</b><small>Calculator V5</small></div></div>
-  <nav>
-    <button id="navDashboard">⌂ <span>Dashboard</span></button>
-    <button id="navProject">▣ <span>Projekti</span></button>
-    <button id="navEstimate">▤ <span>Preventiv</span></button>
-    <button id="navMaterials">◈ <span>Materiale</span></button>
-    <button id="navModules">⌘ <span>Kalkulatorë</span></button>
-  </nav>
-  <div class="side-bottom"><small>V5 • Static • GitHub Pages</small></div>
-</aside>
-<main class="main">
-<header class="topbar"><div><span class="eyebrow">PROJEKT AKTIV</span><h1 id="projectTitle">Construction Calculator</h1></div><div class="top-actions"><button id="exportJson" class="ghost">Eksporto</button><button id="importJson" class="ghost">Importo</button><input id="jsonFile" type="file" accept=".json" hidden><button id="printEstimate" class="primary">Print / PDF</button></div></header>
+<header><h1>🔨 Kalkulator Ndërtimi</h1><div class="sub">20 formula • për iPhone • punon pa internet</div></header>
+<main id="app"></main>
+<script>
+const F=[
+["1. Diagonalja",["A (m)","B (m)"],"√(A² + B²)","m",(a,b)=>Math.hypot(a,b)],
+["2. Sipërfaqja",["Gjatësia (m)","Gjerësia (m)"],"A × B","m²",(a,b)=>a*b],
+["3. Beton",["Gjatësia (m)","Gjerësia (m)","Trashësia (cm)"],"L × G × T ÷ 100","m³",(a,b,c)=>a*b*c/100],
+["4. Pjerrësia",["Ngritja (m)","Baza (m)"],"(Ngritja ÷ Baza) × 100","%",(a,b)=>a/b*100],
+["5. Këndi",["Ngritja (m)","Baza (m)"],"atan(Ngritja ÷ Baza)","°",(a,b)=>Math.atan(a/b)*180/Math.PI],
+["6. Ngritja nga këndi",["Baza (m)","Këndi (°)"],"Baza × tan(Këndi)","m",(a,b)=>a*Math.tan(b*Math.PI/180)],
+["7. Hekur kg/m",["Diametri Ø (mm)"],"Ø² ÷ 162","kg/m",a=>a*a/162],
+["8. Pesha e hekurit",["Diametri Ø (mm)","Gjatësia (m)"],"(Ø² ÷ 162) × L","kg",(a,b)=>a*a/162*b],
+["9. Blloqe / m²",["Gjatësia bllokut (m)","Lartësia bllokut (m)"],"1 ÷ (L × H)","copë/m²",(a,b)=>1/(a*b)],
+["10. Blloqe për mur",["Sipërfaqja e murit (m²)","Blloqe / m²"],"Sipërfaqe × blloqe/m²","copë",(a,b)=>a*b],
+["11. Sipërfaqe muri",["Gjatësia (m)","Lartësia (m)"],"L × H","m²",(a,b)=>a*b],
+["12. Pesha e betonit",["Beton (m³)"],"m³ × 2400","kg",a=>a*2400],
+["13. Presioni i betonit",["Lartësia e betonit (m)"],"25 × h","kN/m²",a=>25*a],
+["14. Presioni total / 1 m",["Lartësia e betonit (m)"],"25 × h² ÷ 2","kN/m",a=>25*a*a/2],
+["15. 3–4–5",["Ana A (m)","Ana B (m)"],"√(A² + B²)","m",(a,b)=>Math.hypot(a,b)],
+["16. Shkallët – lartësia",["Nr. shkallëve","Lartësia/shkallë (cm)"],"N × H","cm",(a,b)=>a*b],
+["17. Shkallët – diagonalja",["Lartësia totale (m)","Baza totale (m)"],"√(H² + B²)","m",(a,b)=>Math.hypot(a,b)],
+["18. Rezervë 10%",["Sasia"],"Sasia × 1.10","njësi",a=>a*1.10],
+["19. cm → m",["Centimetra"],"cm ÷ 100","m",a=>a/100],
+["20. m³ → litra",["Metra kub"],"m³ × 1000","L",a=>a*1000]
+];
 
-<section id="dashboardPage" class="page">
-  <div class="hero"><div><span class="eyebrow">V5</span><h2>Kalkulatori i ndërtimit</h2><p>Menaxho projekte, materiale dhe preventiv nga telefoni ose kompjuteri.</p></div><button id="newProject" class="primary">+ Projekt i ri</button></div>
-  <div class="stats"><div><span>Projekte</span><strong id="statProjects">0</strong></div><div><span>Zëra preventivi</span><strong id="statItems">0</strong></div><div><span>Nëntotal + punë</span><strong id="statSubtotal">0 €</strong></div><div><span>Total me TVSH</span><strong id="statTotal">0 €</strong></div></div>
-  <div class="grid2"><div class="card"><div class="card-head"><h3>Projektet</h3><button id="deleteProject" class="danger-btn">Fshi aktivin</button></div><div id="projectList"></div></div>
-  <div class="card"><div class="card-head"><h3>Zërat e fundit</h3><button id="navEstimate" class="link-btn">Hap preventivin →</button></div><div class="table-wrap"><table><thead><tr><th>Emri</th><th>Nj.</th><th>Sasi</th><th>Vlera</th></tr></thead><tbody id="recentItems"></tbody></table></div></div></div>
-</section>
-
-<section id="projectPage" class="page" hidden>
- <div class="section-head"><div><span class="eyebrow">PROJEKT</span><h2>Të dhënat e projektit</h2></div><button id="saveProject" class="primary">Ruaj</button></div>
- <div class="form-grid"><label>Klienti<input id="projectClient" placeholder="Emri i klientit"></label><label>Lokacioni<input id="projectLocation" placeholder="Adresa / qyteti"></label><label>TVSH %<input id="projectVat" type="number" value="20"></label><label class="wide">Shënime<textarea id="projectNotes" rows="5" placeholder="Shënime të projektit"></textarea></label></div>
-</section>
-
-<section id="estimatePage" class="page" hidden>
- <div class="section-head"><div><span class="eyebrow">PREVENTIV</span><h2>Preventivi i projektit</h2></div><div class="row"><select id="materialSelect"></select><button id="addMaterial" class="secondary">+ Material</button><button id="addItem" class="primary">+ Zë</button></div></div>
- <div class="card"><div class="table-wrap"><table class="estimate"><thead><tr><th>Përshkrimi</th><th>Nj.</th><th>Sasi</th><th>Çmim</th><th>Zbritje %</th><th>Punë / nj.</th><th>Total</th><th></th></tr></thead><tbody id="estimateBody"></tbody></table></div>
- <div class="totals"><div><span>Nëntotal</span><strong id="sumNet">0 €</strong></div><div><span>Punë</span><strong id="sumLabor">0 €</strong></div><div><span>TVSH</span><strong id="sumVat">0 €</strong></div><div class="grand"><span>TOTAL</span><strong id="sumTotal">0 €</strong></div></div></div>
-</section>
-
-<section id="materialsPage" class="page" hidden>
- <div class="section-head"><div><span class="eyebrow">KATALOG</span><h2>Materialet dhe çmimet</h2></div><button class="primary" onclick="state.materials.push({id:'m'+Date.now(),name:'Material i ri',unit:'copë',price:0});persistAndRender()">+ Material</button></div>
- <div class="card"><div class="table-wrap"><table><thead><tr><th>Materiali</th><th>Njësia</th><th>Çmimi</th><th></th></tr></thead><tbody id="materialsBody"></tbody></table></div></div>
-</section>
-
-<section id="modulesPage" class="page" hidden>
- <div class="section-head"><div><span class="eyebrow">KALKULATORË</span><h2>Modulet</h2><p>Zgjidh modulin që dëshiron të llogarisësh.</p></div></div>
- <div id="moduleNav" class="module-grid"></div>
-</section>
-
-<section id="modulePage" class="page" hidden>
- <div class="section-head"><div><button id="backModules" class="link-btn">← Modulet</button><h2 id="moduleTitle">Moduli</h2><p id="moduleDesc"></p></div></div>
- <div class="grid2"><div class="card"><div id="moduleForm" class="form-grid"></div><button id="calcModule" class="primary full">Llogarit</button></div><div class="card"><h3>Rezultati</h3><div id="moduleResult" class="muted">Plotëso të dhënat dhe shtyp Llogarit.</div><button id="addCalc" class="secondary full" hidden>Shto në preventiv</button></div></div>
-</section>
-</main>
-<script src="app.js"></script>
-</body></html>
+const app=document.getElementById("app");
+F.forEach((f,i)=>{
+ const fields=f[1].map((n,j)=>`<div><label>${n}</label><input id="i${i}_${j}" type="number" inputmode="decimal" step="any" placeholder="0"></div>`).join("");
+ app.insertAdjacentHTML("beforeend",
+ `<section class="card"><h2>${f[0]}</h2><div class="formula">${f[2]}</div>
+ <div class="grid">${fields}</div><button onclick="go(${i})">LLOGARIT</button>
+ <div class="result" id="r${i}"></div></section>`);
+});
+function go(i){
+ const f=F[i];
+ const a=f[1].map((_,j)=>parseFloat(document.getElementById(`i${i}_${j}`).value));
+ const r=document.getElementById(`r${i}`);
+ if(a.some(v=>!Number.isFinite(v))){r.textContent="Plotëso të gjitha fushat";return}
+ const x=f[4](...a);
+ r.textContent=(Number.isFinite(x)?x.toFixed(3).replace(/\.?0+$/,""):"Kontrollo vlerat")+" "+f[3];
+}
+</script>
+</body>
+</html>
