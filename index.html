@@ -3,69 +3,48 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#111827">
-<title>Kalkulator Ndërtimi</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#f3f4f6;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{background:#111827;color:#fff;padding:calc(18px + env(safe-area-inset-top)) 16px 16px;position:sticky;top:0;z-index:5}
-h1{margin:0;font-size:23px}.sub{font-size:13px;opacity:.7;margin-top:4px}
-main{max-width:680px;margin:auto;padding:14px}
-.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px #0000000d}
-h2{font-size:17px;margin:0 0 8px}.formula{font-size:12px;color:#6b7280;margin-bottom:10px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-label{display:block;font-size:12px;color:#6b7280;margin-bottom:5px}
-input{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:10px;font-size:18px;background:#fff}
-button{width:100%;margin-top:12px;padding:13px;border:0;border-radius:10px;background:#111827;color:#fff;font-size:16px;font-weight:700}
-.result{margin-top:10px;padding:12px;border-radius:10px;background:#eef0f3;font-size:18px;font-weight:700;min-height:23px}
-@media(max-width:380px){.grid{grid-template-columns:1fr}}
-</style>
+<meta name="theme-color" content="#17121d">
+<title>BETA GROUP-cal</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><h1>🔨 Kalkulator Ndërtimi</h1><div class="sub">20 formula • për iPhone • punon pa internet</div></header>
-<main id="app"></main>
-<script>
-const F=[
-["1. Diagonalja",["A (m)","B (m)"],"√(A² + B²)","m",(a,b)=>Math.hypot(a,b)],
-["2. Sipërfaqja",["Gjatësia (m)","Gjerësia (m)"],"A × B","m²",(a,b)=>a*b],
-["3. Beton",["Gjatësia (m)","Gjerësia (m)","Trashësia (cm)"],"L × G × T ÷ 100","m³",(a,b,c)=>a*b*c/100],
-["4. Pjerrësia",["Ngritja (m)","Baza (m)"],"(Ngritja ÷ Baza) × 100","%",(a,b)=>a/b*100],
-["5. Këndi",["Ngritja (m)","Baza (m)"],"atan(Ngritja ÷ Baza)","°",(a,b)=>Math.atan(a/b)*180/Math.PI],
-["6. Ngritja nga këndi",["Baza (m)","Këndi (°)"],"Baza × tan(Këndi)","m",(a,b)=>a*Math.tan(b*Math.PI/180)],
-["7. Hekur kg/m",["Diametri Ø (mm)"],"Ø² ÷ 162","kg/m",a=>a*a/162],
-["8. Pesha e hekurit",["Diametri Ø (mm)","Gjatësia (m)"],"(Ø² ÷ 162) × L","kg",(a,b)=>a*a/162*b],
-["9. Blloqe / m²",["Gjatësia bllokut (m)","Lartësia bllokut (m)"],"1 ÷ (L × H)","copë/m²",(a,b)=>1/(a*b)],
-["10. Blloqe për mur",["Sipërfaqja e murit (m²)","Blloqe / m²"],"Sipërfaqe × blloqe/m²","copë",(a,b)=>a*b],
-["11. Sipërfaqe muri",["Gjatësia (m)","Lartësia (m)"],"L × H","m²",(a,b)=>a*b],
-["12. Pesha e betonit",["Beton (m³)"],"m³ × 2400","kg",a=>a*2400],
-["13. Presioni i betonit",["Lartësia e betonit (m)"],"25 × h","kN/m²",a=>25*a],
-["14. Presioni total / 1 m",["Lartësia e betonit (m)"],"25 × h² ÷ 2","kN/m",a=>25*a*a/2],
-["15. 3–4–5",["Ana A (m)","Ana B (m)"],"√(A² + B²)","m",(a,b)=>Math.hypot(a,b)],
-["16. Shkallët – lartësia",["Nr. shkallëve","Lartësia/shkallë (cm)"],"N × H","cm",(a,b)=>a*b],
-["17. Shkallët – diagonalja",["Lartësia totale (m)","Baza totale (m)"],"√(H² + B²)","m",(a,b)=>Math.hypot(a,b)],
-["18. Rezervë 10%",["Sasia"],"Sasia × 1.10","njësi",a=>a*1.10],
-["19. cm → m",["Centimetra"],"cm ÷ 100","m",a=>a/100],
-["20. m³ → litra",["Metra kub"],"m³ × 1000","L",a=>a*1000]
-];
+<header class="top">
+  <div class="brand"><div class="mark">BG</div><div><h1>BETA GROUP-cal</h1><p>20+ formula • shpejt • saktë • praktike</p></div></div>
+</header>
 
-const app=document.getElementById("app");
-F.forEach((f,i)=>{
- const fields=f[1].map((n,j)=>`<div><label>${n}</label><input id="i${i}_${j}" type="number" inputmode="decimal" step="any" placeholder="0"></div>`).join("");
- app.insertAdjacentHTML("beforeend",
- `<section class="card"><h2>${f[0]}</h2><div class="formula">${f[2]}</div>
- <div class="grid">${fields}</div><button onclick="go(${i})">LLOGARIT</button>
- <div class="result" id="r${i}"></div></section>`);
-});
-function go(i){
- const f=F[i];
- const a=f[1].map((_,j)=>parseFloat(document.getElementById(`i${i}_${j}`).value));
- const r=document.getElementById(`r${i}`);
- if(a.some(v=>!Number.isFinite(v))){r.textContent="Plotëso të gjitha fushat";return}
- const x=f[4](...a);
- r.textContent=(Number.isFinite(x)?x.toFixed(3).replace(/\.?0+$/,""):"Kontrollo vlerat")+" "+f[3];
-}
-</script>
+<main>
+  <section class="intro">
+    <h2>Formula ndërtimi</h2>
+    <p>Zgjidh formulën, vendos dimensionet dhe merr rezultatin.</p>
+  </section>
+  <div id="formulaList"></div>
+</main>
+
+<nav class="bottom">
+  <button class="active" data-nav="formulas">⌂<span>Formula</span></button>
+  <button data-nav="favorites">☆<span>Të preferuara</span></button>
+  <button data-nav="estimate">▣<span>Preventiv</span></button>
+</nav>
+
+<div id="drawer" class="drawer hidden">
+  <div class="drawer-card">
+    <button id="closeDrawer" class="close">×</button>
+    <h2 id="drawerTitle"></h2><p id="drawerFormula"></p>
+    <div id="fields"></div>
+    <button id="calculate" class="calc">LLOGARIT</button>
+    <div id="result"></div>
+    <button id="addEstimate" class="add hidden">+ Shto në preventiv</button>
+  </div>
+</div>
+
+<div id="estimate" class="estimate hidden">
+  <div class="estimate-head"><button id="closeEstimate">←</button><div><h2>Preventiv</h2><p>BETA GROUP-cal</p></div></div>
+  <div id="estimateRows"></div>
+  <button id="newRow" class="add">+ Shto zë</button>
+  <div class="grand"><span>TOTAL</span><b id="grandTotal">0.00 €</b></div>
+  <button id="print" class="calc">PRINT / PDF</button>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>

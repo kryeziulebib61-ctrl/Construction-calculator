@@ -1,21 +1,7 @@
-# Construction Calculator V5
+# BETA GROUP-cal
 
-V5 is a static HTML/CSS/JavaScript construction calculator designed for GitHub Pages.
+Model mobile inspiruar nga pamja e dërguar: header i errët, karta të bardha, formula me fusha dhe butona LLOGARIT.
 
-## V5 features
-- Dashboard and multiple projects
-- Project/client/location notes
-- Preventiv with quantity, unit, price, discount, labor, VAT and totals
-- Editable material catalog
-- Construction calculators: concrete, foundations, walls, roof, slope, shelter, stairs, reinforcement, plaster, paint, tiles and excavation
-- Add calculator results to the estimate
-- JSON import/export
-- Print / Save as PDF
-- Responsive mobile layout
-- LocalStorage persistence
-- No backend required
+Përfshin 24 formula orientuese për ndërtimtari, preventiv lokal dhe Print/PDF.
 
-## GitHub Pages
-Upload `index.html`, `style.css`, `app.js`, and `README.md` to the repository root and publish `main` / `(root)` using GitHub Pages.
-
-Calculations are orientative and are not a substitute for project documents, structural design, local codes, or verification by qualified professionals.
+Kujdes: rezultatet janë orientuese; dimensionimi strukturor dhe kontrollet e sigurisë duhen verifikuar nga inxhinier i kualifikuar dhe standardet lokale.
