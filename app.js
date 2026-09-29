@@ -1,9 +1,10 @@
-/* BETA GROUP-cal ATAN FIX v5 */
+(() => {
+'use strict';
 const F=[
 ["Diagonala","d=√(a²+b²)",["Stran a (m)","Stran b (m)"],v=>`d = ${Math.hypot(v[0],v[1]).toFixed(3)} m`],
 ["Površina","A=a×b",["Dolžina (m)","Širina (m)"],v=>`A = ${(v[0]*v[1]).toFixed(2)} m²`],
-["Prostornina betona","V=L×W×H",["Dolžina (m)","Širina (m)","Višina (m)"],v=>{let x=v[0]*v[1]*v[2];return`V = ${x.toFixed(3)} m³ • masa ≈ ${(x*2400).toFixed(0)} kg`}],
-["Višina strehe (atan)","h=b×tan(α)",["Polovica širine objekta (m)","Koti α (°)"],v=>`Višina = ${(v[0]*Math.tan(v[1]*Math.PI/180)).toFixed(2)} m`],
+["Prostornina betona","V=L×W×H",["Dolžina (m)","Širina (m)","Višina (m)"],v=>{const x=v[0]*v[1]*v[2];return`V = ${x.toFixed(3)} m³ • masa ≈ ${(x*2400).toFixed(0)} kg`}],
+["Višina strehe (atan)","h=b×tan(α)",["Polovica širine objekta (m)","Kot α (°)"],v=>`Višina = ${(v[0]*Math.tan(v[1]*Math.PI/180)).toFixed(2)} m`],
 ["Naklon","i=n/b×100",["Višina (m)","Osnova (m)"],v=>`Naklon = ${(v[1]?v[0]/v[1]*100:0).toFixed(2)} %`],
 ["Masa armature","kg=d²/162×L×n",["Premer d (mm)","Dolžina L (m)","Število palic"],v=>`Masa = ${(v[0]**2/162*v[1]*v[2]).toFixed(2)} kg`],
 ["Masa betona","m=V×2400",["Prostornina (m³)"],v=>`Masa ≈ ${(v[0]*2400).toFixed(0)} kg`],
@@ -21,11 +22,29 @@ const F=[
 ["Ploščice + odpad","A×(1+odpad%)",["Dolžina (m)","Širina (m)","Odpad (%)"],v=>`Potrebno ≈ ${(v[0]*v[1]*(1+v[2]/100)).toFixed(2)} m²`],
 ["Obseg","P=2(a+b)",["Dolžina a (m)","Širina b (m)"],v=>`P = ${(2*(v[0]+v[1])).toFixed(2)} m`]
 ];
-let rows=JSON.parse(localStorage.getItem("bg_slo_rows")||"[]"),active=0,$=s=>document.querySelector(s);
-function render(){list.innerHTML=F.map((f,i)=>`<article class=card><h3>${i+1}. ${f[0]}</h3><div class=eq>${f[1]}</div><div class=inputs>${f[2].map((x,j)=>`<div class=field><label>${x}</label><input id=a${i}-${j} type=number step=.01 value=0></div>`).join("")}</div><button class=calc data-i=${i}>IZRAČUNAJ</button><div class=result id=r${i}></div></article>`).join("");document.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{let f=F[+b.dataset.i],v=f[2].map((_,j)=>+($(`#a${b.dataset.i}-${j}`).value)||0);$(`#r${b.dataset.i}`).innerHTML="<strong>"+f[3](v)+"</strong>"})}
-function save(){localStorage.setItem("bg_slo_rows",JSON.stringify(rows))}
-function parseNum(v){const n=parseFloat(String(v).replace(/\s/g,"").replace(",","."));return Number.isFinite(n)?n:0}
-function updateTotal(){let t=rows.reduce((s,r)=>s+parseNum(r.qty)*parseNum(r.price),0);total.textContent=t.toLocaleString("sl-SI",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"}
-function renderRows(){rowsBox.innerHTML=rows.map((r,i)=>`<div class=estimate-row><input data-e=${i} data-k=name value="${String(r.name).replace(/&/g,"&amp;").replace(/\"/g,"&quot;")}"><input data-e=${i} data-k=unit value="${String(r.unit).replace(/&/g,"&amp;").replace(/\"/g,"&quot;")}"><input data-e=${i} data-k=qty type="text" inputmode="decimal" autocomplete="off" value="${r.qty}"><input data-e=${i} data-k=price type="text" inputmode="decimal" autocomplete="off" value="${r.price}"><button data-d=${i}>×</button></div>`).join("")||"<p>Ni postavk.</p>";updateTotal();document.querySelectorAll("[data-e]").forEach(x=>x.oninput=()=>{const i=+x.dataset.e,k=x.dataset.k;rows[i][k]=["qty","price"].includes(k)?x.value:x.value;save();updateTotal()});document.querySelectorAll("[data-d]").forEach(x=>x.onclick=()=>{rows.splice(+x.dataset.d,1);save();renderRows()})}
-const list=$("#list"),sheet=$("#sheet"),estimate=$("#estimate"),rowsBox=$("#rows");
-$("#pred").onclick=()=>{renderRows();estimate.classList.remove("hide")};$("#back").onclick=()=>estimate.classList.add("hide");$("#add").onclick=()=>{rows.push({name:"Nova postavka",unit:"m²",qty:1,price:0});save();renderRows()};$("#print").onclick=()=>print();$("#about").onclick=()=>alert("BETA GROUP-cal • 20 gradbenih formul");render();
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const list=$('#list'), estimate=$('#estimate'), rowsBox=$('#rows'), total=$('#total');
+let rows=JSON.parse(localStorage.getItem('bg_slo_rows')||'[]');
+function parseNum(x){return Number(String(x??'').replace(/\s/g,'').replace(',','.'))||0}
+function esc(x){return String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function render(){list.innerHTML=F.map((f,i)=>`<article class="card"><h3>${i+1}. ${f[0]}</h3><div class="eq">${f[1]}</div><div class="inputs">${f[2].map((x,j)=>`<div class="field"><label>${x}</label><input id="a${i}-${j}" type="number" step=".01" inputmode="decimal" value="0"></div>`).join('')}</div><button class="calc" type="button" data-i="${i}">IZRAČUNAJ</button><div class="result" id="r${i}"></div></article>`).join('');
+$$('[data-i]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.i),f=F[i],v=f[2].map((_,j)=>parseNum($(`#a${i}-${j}`).value));$(`#r${i}`).innerHTML='<strong>'+f[3](v)+'</strong>'}));}
+function save(){localStorage.setItem('bg_slo_rows',JSON.stringify(rows))}
+function updateTotal(){const sum=rows.reduce((s,r)=>s+parseNum(r.qty)*parseNum(r.price),0);total.textContent=sum.toLocaleString('sl-SI',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
+function renderRows(){
+ rowsBox.innerHTML=rows.length?rows.map((r,i)=>`<div class="estimate-row"><input data-e="${i}" data-k="name" aria-label="Postavka" value="${esc(r.name)}"><input data-e="${i}" data-k="unit" aria-label="Enota" value="${esc(r.unit)}"><input data-e="${i}" data-k="qty" aria-label="Količina" type="text" inputmode="decimal" autocomplete="off" value="${esc(r.qty)}"><input data-e="${i}" data-k="price" aria-label="Cena" type="text" inputmode="decimal" autocomplete="off" value="${esc(r.price)}"><button type="button" data-d="${i}" aria-label="Izbriši">×</button></div>`).join(''):'<p class="empty">Ni postavk.</p>';
+ updateTotal();
+ $$('[data-e]').forEach(x=>x.addEventListener('input',()=>{const i=+x.dataset.e,k=x.dataset.k; if(rows[i]){rows[i][k]=x.value;save();if(k==='qty'||k==='price')updateTotal()}}));
+ $$('[data-d]').forEach(x=>x.addEventListener('click',()=>{rows.splice(+x.dataset.d,1);save();renderRows()}));
+}
+function openEstimate(){renderRows();estimate.classList.remove('hide');estimate.setAttribute('aria-hidden','false');document.body.classList.add('estimate-open')}
+function closeEstimate(){estimate.classList.add('hide');estimate.setAttribute('aria-hidden','true');document.body.classList.remove('estimate-open')}
+$('#pred').addEventListener('click',openEstimate);
+$('#back').addEventListener('click',closeEstimate);
+$('#homeNav').addEventListener('click',closeEstimate);
+$('#add').addEventListener('click',()=>{rows.push({name:'Nova postavka',unit:'m²',qty:'1',price:'0'});save();renderRows();const last=rowsBox.querySelector('[data-e="'+(rows.length-1)+'"][data-k="name"]');if(last){last.focus();last.select()}});
+$('#print').addEventListener('click',()=>window.print());
+$('#about').addEventListener('click',()=>alert('BETA GROUP-cal • 20 gradbenih formul'));
+const date=$('#estimateDate'); date.value=localStorage.getItem('bg_slo_date')||new Date().toISOString().slice(0,10); date.addEventListener('change',()=>localStorage.setItem('bg_slo_date',date.value));
+render();
+})();
