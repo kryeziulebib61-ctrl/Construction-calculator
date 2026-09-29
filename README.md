@@ -14,3 +14,6 @@ Izračuni so informativni. Statično dimenzioniranje in varnost mora preveriti u
 
 ## Logo podjetja
 V aplikacijo je vključen priloženi logotip **BETA GROUP**.
+
+
+**Logoja është e integruar direkt në `index.html`; nuk kërkohet folderi `assets`.**
