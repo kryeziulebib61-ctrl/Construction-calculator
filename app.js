@@ -46,6 +46,14 @@ $('#homeNav').addEventListener('click',closeEstimate);
 $('#add').addEventListener('click',()=>{rows.push({name:'Nova postavka',unit:'m²',qty:'1',price:'0'});save();renderRows();const last=rowsBox.querySelector('[data-e="'+(rows.length-1)+'"][data-k="name"]');if(last){last.focus();last.select()}});
 $('#print').addEventListener('click',()=>window.print());
 $('#about').addEventListener('click',()=>alert('BETA GROUP-cal • 20 gradbenih formul'));
-const date=$('#estimateDate'); if(date){ date.value=localStorage.getItem('bg_slo_date')||new Date().toISOString().slice(0,10); date.addEventListener('change',()=>localStorage.setItem('bg_slo_date',date.value)); }
+const date=$('#estimateDate'), dateDisplay=$('#estimateDateDisplay');
+function formatSloDate(iso){if(!iso)return '';const m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return '';return `${Number(m[3])}. ${Number(m[2])}. ${m[1]}`;}
+if(date){
+  const saved=localStorage.getItem('bg_slo_date')||new Date().toISOString().slice(0,10);
+  date.value=saved;
+  if(dateDisplay) dateDisplay.value=formatSloDate(saved);
+  date.addEventListener('change',()=>{localStorage.setItem('bg_slo_date',date.value);if(dateDisplay)dateDisplay.value=formatSloDate(date.value)});
+  if(dateDisplay) dateDisplay.addEventListener('click',()=>{try{if(typeof date.showPicker==='function')date.showPicker();else date.click()}catch(e){date.click()}});
+}
 try{render()}catch(e){console.error(e)}
 })();
