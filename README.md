@@ -20,3 +20,6 @@ V aplikacijo je vključen priloženi logotip **BETA GROUP**.
 
 
 **LOGO FIX:** logoja e BETA GROUP është e integruar direkt në `index.html` dhe shfaqet në krye të aplikacionit.
+
+
+Popravek: rezultat formule 4 je v slovenščini ("Dvig"). V predračunu je vnos količine in cene popravljen tako, da se vrstica ne izrisuje na novo pri vsakem vnosu; decimalna vejica je podprta.
