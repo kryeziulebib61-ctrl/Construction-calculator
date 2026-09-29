@@ -2,3 +2,10 @@
 .brand{width:100%;display:flex;align-items:center;justify-content:center}
 .brand img{width:min(100%,430px);max-height:125px;object-fit:contain;border-radius:12px}
 header{padding:12px 14px}
+
+.company-logo{width:100%;display:flex;justify-content:center;align-items:center;background:#000;border-radius:14px;overflow:hidden;margin-bottom:10px}
+.company-logo img{display:block;width:100%;max-width:620px;height:auto;max-height:220px;object-fit:contain}
+.brand-title{text-align:center;width:100%}
+.brand-title h1{margin:4px 0;font-size:20px;color:#fff}
+.brand-title p{margin:2px 0;color:#c6df51;font-size:12px}
+header{display:block;background:#10151f;padding:12px 12px 16px}

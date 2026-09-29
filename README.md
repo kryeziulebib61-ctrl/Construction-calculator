@@ -17,3 +17,6 @@ V aplikacijo je vključen priloženi logotip **BETA GROUP**.
 
 
 **Logoja është e integruar direkt në `index.html`; nuk kërkohet folderi `assets`.**
+
+
+**LOGO FIX:** logoja e BETA GROUP është e integruar direkt në `index.html` dhe shfaqet në krye të aplikacionit.
