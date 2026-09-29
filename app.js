@@ -1,43 +1,28 @@
 const F=[
-["1. Diagonalja","d = √(a² + b²)",["a (m)","b (m)"],v=>`d = ${Math.hypot(v[0],v[1]).toFixed(3)} m`],
-["2. Sipërfaqja","A = a × b",["Gjatësia (m)","Gjerësia (m)"],v=>`A = ${(v[0]*v[1]).toFixed(2)} m²`],
-["3. Beton","V = L × W × H",["Gjatësia (m)","Gjerësia (m)","Lartësia (m)"],v=>{let x=v[0]*v[1]*v[2];return `V = ${x.toFixed(3)} m³ • Pesha ≈ ${(x*2400).toFixed(0)} kg`}],
-["4. Këndi (atan)","α = atan(n / b)",["Ngritja (m)","Baza (m)"],v=>`α = ${(Math.atan2(v[0],v[1])*180/Math.PI).toFixed(2)}°`],
-["5. Pjerrësia","i = ngritja / baza × 100",["Ngritja (m)","Baza (m)"],v=>`Pjerrësia = ${(v[1]?v[0]/v[1]*100:0).toFixed(2)}% • ${(Math.atan2(v[0],v[1])*180/Math.PI).toFixed(2)}°`],
-["6. Pesha e hekurit","kg = d² / 162 × L × n",["Diametri d (mm)","Gjatësia L (m)","Nr. shufrave"],v=>`Pesha = ${(v[0]**2/162*v[1]*v[2]).toFixed(2)} kg`],
-["7. Pesha e betonit","P = V × 2400 kg/m³",["Vëllimi (m³)"],v=>`Pesha ≈ ${(v[0]*2400).toFixed(0)} kg`],
-["8. Presioni","p = F / A",["Forca F (kN)","Sipërfaqja A (m²)"],v=>`p = ${(v[1]?v[0]/v[1]:0).toFixed(3)} kN/m²`],
-["9. Shkallët","2R + T",["Nr. hapash","Ngritja R (m)","Shkelja T (m)","Gjerësia (m)"],v=>`2R+T = ${(2*v[1]+v[2]).toFixed(3)} m • Ngritje totale ${(v[0]*v[1]).toFixed(2)} m`],
-["10. Trekëndëshi","A = b × h / 2",["Baza (m)","Lartësia (m)"],v=>`A = ${(v[0]*v[1]/2).toFixed(2)} m²`],
-["11. Rrethi","A = πr²",["Rrezja r (m)"],v=>`A = ${(Math.PI*v[0]**2).toFixed(2)} m² • C = ${(2*Math.PI*v[0]).toFixed(2)} m`],
-["12. Cilindri","V = πr²h",["Rrezja r (m)","Lartësia h (m)"],v=>`V = ${(Math.PI*v[0]**2*v[1]).toFixed(3)} m³`],
-["13. Prizmi","V = Aᵦ × h",["Baza a (m)","Baza b (m)","Lartësia h (m)"],v=>`V = ${(v[0]*v[1]*v[2]).toFixed(3)} m³`],
-["14. Çatia","A = Aplan / cos(α)",["Gjatësia (m)","Gjerësia (m)","Këndi α (°)"],v=>`A pjerrët = ${(v[0]*v[1]/Math.cos(v[2]*Math.PI/180)).toFixed(2)} m²`],
-["15. Gërmimi","V = L × W × H",["Gjatësia (m)","Gjerësia (m)","Thellësia (m)"],v=>`V = ${(v[0]*v[1]*v[2]).toFixed(2)} m³`],
-["16. Blloqe / tulla","N = A × copë/m²",["Sipërfaqja (m²)","Copë / m²"],v=>`N ≈ ${Math.ceil(v[0]*v[1])} copë`],
-["17. Suvatim","V = A × trashësi",["Sipërfaqja (m²)","Trashësia (mm)"],v=>`V ≈ ${(v[0]*v[1]/1000).toFixed(3)} m³`],
-["18. Bojë","L = A × duar / mbulim",["Sipërfaqja (m²)","Duar","Mbulimi (m²/L)"],v=>`Bojë ≈ ${(v[0]*v[1]/(v[2]||10)).toFixed(2)} L`],
-["19. Pllaka","A × (1 + humbja%)",["Gjatësia (m)","Gjerësia (m)","Humbje (%)"],v=>`A me humbje = ${(v[0]*v[1]*(1+v[2]/100)).toFixed(2)} m²`],
-["20. Perimetri","P = 2(a+b)",["Gjatësia a (m)","Gjerësia b (m)"],v=>`P = ${(2*(v[0]+v[1])).toFixed(2)} m`],
-["21. Ton → kg","kg = ton × 1000",["Ton"],v=>`${(v[0]*1000).toFixed(2)} kg`],
-["22. Shufra hekuri","Ltot = L × n",["Gjatësia/shufër (m)","Nr. shufrave"],v=>`L totale = ${(v[0]*v[1]).toFixed(2)} m`],
-["23. Masa e tokës","m = V × ρ",["Vëllimi (m³)","Dendësia (kg/m³)"],v=>`Masa = ${(v[0]*v[1]).toFixed(0)} kg`],
-["24. Sipërfaqe muri","A = L × H",["Gjatësia (m)","Lartësia (m)"],v=>`A = ${(v[0]*v[1]).toFixed(2)} m²`]
+["Diagonala","d=√(a²+b²)",["Stran a (m)","Stran b (m)"],v=>`d = ${Math.hypot(v[0],v[1]).toFixed(3)} m`],
+["Površina","A=a×b",["Dolžina (m)","Širina (m)"],v=>`A = ${(v[0]*v[1]).toFixed(2)} m²`],
+["Prostornina betona","V=L×W×H",["Dolžina (m)","Širina (m)","Višina (m)"],v=>{let x=v[0]*v[1]*v[2];return`V = ${x.toFixed(3)} m³ • masa ≈ ${(x*2400).toFixed(0)} kg`}],
+["Kot (atan)","α=atan(n/b)",["Višina (m)","Osnova (m)"],v=>`α = ${(Math.atan2(v[0],v[1])*180/Math.PI).toFixed(2)}°`],
+["Naklon","i=n/b×100",["Višina (m)","Osnova (m)"],v=>`Naklon = ${(v[1]?v[0]/v[1]*100:0).toFixed(2)} %`],
+["Masa armature","kg=d²/162×L×n",["Premer d (mm)","Dolžina L (m)","Število palic"],v=>`Masa = ${(v[0]**2/162*v[1]*v[2]).toFixed(2)} kg`],
+["Masa betona","m=V×2400",["Prostornina (m³)"],v=>`Masa ≈ ${(v[0]*2400).toFixed(0)} kg`],
+["Tlak","p=F/A",["Sila F (kN)","Površina A (m²)"],v=>`p = ${(v[1]?v[0]/v[1]:0).toFixed(3)} kN/m²`],
+["Stopnice","2R+T",["Število stopnic","Višina R (m)","Globina T (m)"],v=>`2R+T = ${(2*v[1]+v[2]).toFixed(3)} m`],
+["Trikotnik","A=b×h/2",["Osnova (m)","Višina (m)"],v=>`A = ${(v[0]*v[1]/2).toFixed(2)} m²`],
+["Krog","A=πr²",["Polmer r (m)"],v=>`A = ${(Math.PI*v[0]**2).toFixed(2)} m²`],
+["Valj","V=πr²h",["Polmer r (m)","Višina h (m)"],v=>`V = ${(Math.PI*v[0]**2*v[1]).toFixed(3)} m³`],
+["Temelj","V=L×W×H",["Dolžina (m)","Širina (m)","Višina (m)"],v=>`V = ${(v[0]*v[1]*v[2]).toFixed(3)} m³`],
+["Streha","A=Ap/cos(α)",["Dolžina (m)","Širina (m)","Kot α (°)"],v=>`Površina ≈ ${(v[0]*v[1]/Math.cos(v[2]*Math.PI/180)).toFixed(2)} m²`],
+["Izkop","V=L×W×H",["Dolžina (m)","Širina (m)","Globina (m)"],v=>`Izkop = ${(v[0]*v[1]*v[2]).toFixed(2)} m³`],
+["Opeka / bloki","N=A×kosov/m²",["Površina (m²)","Kosov na m²"],v=>`Potrebno ≈ ${Math.ceil(v[0]*v[1])} kosov`],
+["Omet","V=A×t",["Površina (m²)","Debelina (mm)"],v=>`Prostornina ≈ ${(v[0]*v[1]/1000).toFixed(3)} m³`],
+["Barva","L=A×sloji/pokrivnost",["Površina (m²)","Število slojev","Pokrivnost (m²/L)"],v=>`Barva ≈ ${(v[0]*v[1]/(v[2]||10)).toFixed(2)} L`],
+["Ploščice + odpad","A×(1+odpad%)",["Dolžina (m)","Širina (m)","Odpad (%)"],v=>`Potrebno ≈ ${(v[0]*v[1]*(1+v[2]/100)).toFixed(2)} m²`],
+["Obseg","P=2(a+b)",["Dolžina a (m)","Širina b (m)"],v=>`P = ${(2*(v[0]+v[1])).toFixed(2)} m`]
 ];
-let estimate=JSON.parse(localStorage.getItem("bg_estimate")||"[]"), active=null;
-const $=s=>document.querySelector(s);
-function money(n){return Number(n||0).toLocaleString("sq-AL",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"}
-function render(){const box=$("#formulaList");box.innerHTML=F.map((f,i)=>`<article class="formula-card"><h3>${f[0]}</h3><div class="eq">${f[1]}</div><div class="inputs">${f[2].map((x,j)=>`<div class="field"><label>${x}</label><input id="quick-${i}-${j}" type="number" step=".01" value="0"></div>`).join("")}</div><button class="run" data-run="${i}">LLOGARIT</button><div class="result" id="res-${i}"></div></article>`).join("");document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>calc(+b.dataset.run))}
-function calc(i){let f=F[i],v=f[2].map((_,j)=>Number($("#quick-"+i+"-"+j).value)||0);$("#res-"+i).innerHTML="<strong>"+f[3](v)+"</strong>"}
-function openCalc(i){active=i;let f=F[i];$("#drawerTitle").textContent=f[0];$("#drawerFormula").textContent=f[1];$("#fields").innerHTML=f[2].map((x,j)=>`<div class="field"><label>${x}</label><input id="d-${j}" type="number" step=".01" value="0"></div>`).join("");$("#result").innerHTML="";$("#addEstimate").classList.add("hidden");$("#drawer").classList.remove("hidden")}
-function renderEstimate(){let b=$("#estimateRows");b.innerHTML=estimate.map((r,i)=>`<div class="estimate-row"><input data-e="${i}" data-k="name" value="${r.name}"><input data-e="${i}" data-k="unit" value="${r.unit}"><input type="number" data-e="${i}" data-k="qty" value="${r.qty}"><input type="number" data-e="${i}" data-k="price" value="${r.price}"><button class="danger" data-del="${i}">Fshi</button></div>`).join("")||"<p>Nuk ka zëra.</p>";let t=estimate.reduce((s,r)=>s+(+r.qty||0)*(+r.price||0),0);$("#grandTotal").textContent=money(t);document.querySelectorAll("[data-e]").forEach(x=>x.oninput=()=>{let r=estimate[+x.dataset.e];r[x.dataset.k]=["qty","price"].includes(x.dataset.k)?Number(x.value)||0:x.value;save()});document.querySelectorAll("[data-del]").forEach(x=>x.onclick=()=>{estimate.splice(+x.dataset.del,1);save();renderEstimate()})}
-function save(){localStorage.setItem("bg_estimate",JSON.stringify(estimate))}
-document.querySelectorAll("[data-nav]").forEach(b=>b.onclick=()=>{if(b.dataset.nav==="estimate"){renderEstimate();$("#estimate").classList.remove("hidden")}else{document.querySelectorAll("[data-nav]").forEach(x=>x.classList.remove("active"));b.classList.add("active");scrollTo(0,0)}})
-document.addEventListener("click",e=>{if(e.target.dataset.run!==undefined){}});
-$("#calculate").onclick=()=>{let f=F[active],v=f[2].map((_,j)=>Number($("#d-"+j).value)||0);$("#result").innerHTML="<div class='resultbox'><strong>"+f[3](v)+"</strong></div>";$("#addEstimate").classList.remove("hidden")};
-$("#addEstimate").onclick=()=>{estimate.push({name:F[active][0],unit:"llogaritje",qty:1,price:0});save();$("#drawer").classList.add("hidden");renderEstimate();$("#estimate").classList.remove("hidden")};
-$("#closeDrawer").onclick=()=>$("#drawer").classList.add("hidden");
-$("#closeEstimate").onclick=()=>$("#estimate").classList.add("hidden");
-$("#newRow").onclick=()=>{estimate.push({name:"Zë i ri",unit:"m²",qty:1,price:0});save();renderEstimate()};
-$("#print").onclick=()=>print();
-render();document.querySelectorAll(".formula-card .run").forEach(b=>b.addEventListener("dblclick",()=>openCalc(+b.dataset.run)));
+let rows=JSON.parse(localStorage.getItem("bg_slo_rows")||"[]"),active=0,$=s=>document.querySelector(s);
+function render(){list.innerHTML=F.map((f,i)=>`<article class=card><h3>${i+1}. ${f[0]}</h3><div class=eq>${f[1]}</div><div class=inputs>${f[2].map((x,j)=>`<div class=field><label>${x}</label><input id=a${i}-${j} type=number step=.01 value=0></div>`).join("")}</div><button class=calc data-i=${i}>IZRAČUNAJ</button><div class=result id=r${i}></div></article>`).join("");document.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{let f=F[+b.dataset.i],v=f[2].map((_,j)=>+($(`#a${b.dataset.i}-${j}`).value)||0);$(`#r${b.dataset.i}`).innerHTML="<strong>"+f[3](v)+"</strong>"})}
+function save(){localStorage.setItem("bg_slo_rows",JSON.stringify(rows))}
+function renderRows(){rowsBox.innerHTML=rows.map((r,i)=>`<div class=estimate-row><input data-e=${i} data-k=name value="${r.name}"><input data-e=${i} data-k=unit value="${r.unit}"><input type=number data-e=${i} data-k=qty value="${r.qty}"><input type=number data-e=${i} data-k=price value="${r.price}"><button data-d=${i}>×</button></div>`).join("")||"<p>Ni postavk.</p>";let t=rows.reduce((s,r)=>s+(+r.qty||0)*(+r.price||0),0);total.textContent=t.toLocaleString("sl-SI",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";document.querySelectorAll("[data-e]").forEach(x=>x.oninput=()=>{rows[+x.dataset.e][x.dataset.k]=["qty","price"].includes(x.dataset.k)?+x.value||0:x.value;save();renderRows()});document.querySelectorAll("[data-d]").forEach(x=>x.onclick=()=>{rows.splice(+x.dataset.d,1);save();renderRows()})}
+const list=$("#list"),sheet=$("#sheet"),estimate=$("#estimate"),rowsBox=$("#rows");
+$("#pred").onclick=()=>{renderRows();estimate.classList.remove("hide")};$("#back").onclick=()=>estimate.classList.add("hide");$("#add").onclick=()=>{rows.push({name:"Nova postavka",unit:"m²",qty:1,price:0});save();renderRows()};$("#print").onclick=()=>print();$("#about").onclick=()=>alert("BETA GROUP-cal • 20 gradbenih formul");render();
