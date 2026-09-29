@@ -24,7 +24,8 @@ const F=[
 ];
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const list=$('#list'), estimate=$('#estimate'), rowsBox=$('#rows'), total=$('#total');
-let rows=JSON.parse(localStorage.getItem('bg_slo_rows')||'[]');
+let rows=[];
+try{ const raw=localStorage.getItem('bg_slo_rows'); rows=raw?JSON.parse(raw):[]; if(!Array.isArray(rows)) rows=[]; }catch(e){ rows=[]; localStorage.removeItem('bg_slo_rows'); }
 function parseNum(x){return Number(String(x??'').replace(/\s/g,'').replace(',','.'))||0}
 function esc(x){return String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function render(){list.innerHTML=F.map((f,i)=>`<article class="card"><h3>${i+1}. ${f[0]}</h3><div class="eq">${f[1]}</div><div class="inputs">${f[2].map((x,j)=>`<div class="field"><label>${x}</label><input id="a${i}-${j}" type="number" step=".01" inputmode="decimal" value="0"></div>`).join('')}</div><button class="calc" type="button" data-i="${i}">IZRAČUNAJ</button><div class="result" id="r${i}"></div></article>`).join('');
@@ -37,7 +38,7 @@ function renderRows(){
  $$('[data-e]').forEach(x=>x.addEventListener('input',()=>{const i=+x.dataset.e,k=x.dataset.k; if(rows[i]){rows[i][k]=x.value;save();if(k==='qty'||k==='price')updateTotal()}}));
  $$('[data-d]').forEach(x=>x.addEventListener('click',()=>{rows.splice(+x.dataset.d,1);save();renderRows()}));
 }
-function openEstimate(){renderRows();estimate.classList.remove('hide');estimate.setAttribute('aria-hidden','false');document.body.classList.add('estimate-open')}
+function openEstimate(){try{renderRows()}catch(e){rows=[];save();renderRows()} estimate.classList.remove('hide'); estimate.setAttribute('aria-hidden','false'); document.body.classList.add('estimate-open'); window.scrollTo({top:0,behavior:'smooth'});}
 function closeEstimate(){estimate.classList.add('hide');estimate.setAttribute('aria-hidden','true');document.body.classList.remove('estimate-open')}
 $('#pred').addEventListener('click',openEstimate);
 $('#back').addEventListener('click',closeEstimate);
@@ -45,6 +46,6 @@ $('#homeNav').addEventListener('click',closeEstimate);
 $('#add').addEventListener('click',()=>{rows.push({name:'Nova postavka',unit:'m²',qty:'1',price:'0'});save();renderRows();const last=rowsBox.querySelector('[data-e="'+(rows.length-1)+'"][data-k="name"]');if(last){last.focus();last.select()}});
 $('#print').addEventListener('click',()=>window.print());
 $('#about').addEventListener('click',()=>alert('BETA GROUP-cal • 20 gradbenih formul'));
-const date=$('#estimateDate'); date.value=localStorage.getItem('bg_slo_date')||new Date().toISOString().slice(0,10); date.addEventListener('change',()=>localStorage.setItem('bg_slo_date',date.value));
-render();
+const date=$('#estimateDate'); if(date){ date.value=localStorage.getItem('bg_slo_date')||new Date().toISOString().slice(0,10); date.addEventListener('change',()=>localStorage.setItem('bg_slo_date',date.value)); }
+try{render()}catch(e){console.error(e)}
 })();
