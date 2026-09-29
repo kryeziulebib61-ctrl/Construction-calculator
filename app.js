@@ -26,9 +26,9 @@ const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const list=$('#list'), estimate=$('#estimate'), rowsBox=$('#rows'), total=$('#total');
 let rows=[];
 try{ const raw=localStorage.getItem('bg_slo_rows'); rows=raw?JSON.parse(raw):[]; if(!Array.isArray(rows)) rows=[]; }catch(e){ rows=[]; localStorage.removeItem('bg_slo_rows'); }
-function parseNum(x){return Number(String(x??'').replace(/\s/g,'').replace(',','.'))||0}
+function parseNum(x){const s=String(x??'').trim().toLowerCase().replace(/\s/g,'').replace(',','.').replace(/m³|m²|m|mm|kg|kn|l|%/g,'');return Number(s)||0}
 function esc(x){return String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function render(){list.innerHTML=F.map((f,i)=>`<article class="card"><h3>${i+1}. ${f[0]}</h3><div class="eq">${f[1]}</div><div class="inputs">${f[2].map((x,j)=>`<div class="field"><label>${x}</label><input id="a${i}-${j}" type="number" step=".01" inputmode="decimal" value="0"></div>`).join('')}</div><button class="calc" type="button" data-i="${i}">IZRAČUNAJ</button><div class="result" id="r${i}"></div></article>`).join('');
+function render(){list.innerHTML=F.map((f,i)=>`<article class="card"><h3>${i+1}. ${f[0]}</h3><div class="eq">${f[1]}</div><div class="inputs">${f[2].map((x,j)=>`<div class="field"><label>${x}</label><input id="a${i}-${j}" type="text" inputmode="decimal" autocomplete="off" value="0"></div>`).join('')}</div><button class="calc" type="button" data-i="${i}">IZRAČUNAJ</button><div class="result" id="r${i}"></div></article>`).join('');
 $$('[data-i]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.i),f=F[i],v=f[2].map((_,j)=>parseNum($(`#a${i}-${j}`).value));$(`#r${i}`).innerHTML='<strong>'+f[3](v)+'</strong>'}));}
 function save(){localStorage.setItem('bg_slo_rows',JSON.stringify(rows))}
 function updateTotal(){const sum=rows.reduce((s,r)=>s+parseNum(r.qty)*parseNum(r.price),0);total.textContent=sum.toLocaleString('sl-SI',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
