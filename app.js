@@ -1,3 +1,4 @@
+/* BETA GROUP-cal ATAN FIX v5 */
 const F=[
 ["Diagonala","d=√(a²+b²)",["Stran a (m)","Stran b (m)"],v=>`d = ${Math.hypot(v[0],v[1]).toFixed(3)} m`],
 ["Površina","A=a×b",["Dolžina (m)","Širina (m)"],v=>`A = ${(v[0]*v[1]).toFixed(2)} m²`],
