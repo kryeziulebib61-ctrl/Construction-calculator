@@ -2,7 +2,7 @@ const F=[
 ["Diagonala","d=√(a²+b²)",["Stran a (m)","Stran b (m)"],v=>`d = ${Math.hypot(v[0],v[1]).toFixed(3)} m`],
 ["Površina","A=a×b",["Dolžina (m)","Širina (m)"],v=>`A = ${(v[0]*v[1]).toFixed(2)} m²`],
 ["Prostornina betona","V=L×W×H",["Dolžina (m)","Širina (m)","Višina (m)"],v=>{let x=v[0]*v[1]*v[2];return`V = ${x.toFixed(3)} m³ • masa ≈ ${(x*2400).toFixed(0)} kg`}],
-["Kot (atan)","α=atan(n/b)",["Višina (m)","Osnova (m)"],v=>`α = ${(Math.atan2(v[0],v[1])*180/Math.PI).toFixed(2)}°`],
+["ATAN – Ngritja e çatisë","h=b×tan(α)",["Gjysma e gjerësisë objekta (m)","Këndi α (°)"],v=>{let h=v[0]*Math.tan(v[1]*Math.PI/180);return`Ngritja = ${h.toFixed(2)} m`}],
 ["Naklon","i=n/b×100",["Višina (m)","Osnova (m)"],v=>`Naklon = ${(v[1]?v[0]/v[1]*100:0).toFixed(2)} %`],
 ["Masa armature","kg=d²/162×L×n",["Premer d (mm)","Dolžina L (m)","Število palic"],v=>`Masa = ${(v[0]**2/162*v[1]*v[2]).toFixed(2)} kg`],
 ["Masa betona","m=V×2400",["Prostornina (m³)"],v=>`Masa ≈ ${(v[0]*2400).toFixed(0)} kg`],

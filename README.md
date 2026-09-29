@@ -20,3 +20,6 @@ V aplikacijo je vključen priloženi logotip **BETA GROUP**.
 
 
 **LOGO FIX:** logoja e BETA GROUP është e integruar direkt në `index.html` dhe shfaqet në krye të aplikacionit.
+
+
+Ndryshim: Formula 4 tani kërkon vetëm gjysmën e gjerësisë së objektit dhe këndin në gradë, dhe jep ngritjen vertikale në metra: h = b × tan(α).
